@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.4.dtd">
 <!-- eric4 project file for project txtr -->
-<!-- Saved: 2009-04-20, 21:41:27 -->
+<!-- Saved: 2009-05-02, 18:25:47 -->
 <!-- Copyright (C) 2009 Henryk Plötz, henryk@ploetzli.ch -->
 <Project version="4.4">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -12,6 +12,9 @@
   <Email>henryk@ploetzli.ch</Email>
   <Sources>
     <Source>wstest.py</Source>
+    <Source>jsontest.py</Source>
+    <Source>txtr.py</Source>
+    <Source>create_from_web.py</Source>
   </Sources>
   <Forms>
   </Forms>
@@ -24,7 +27,7 @@
   <Others>
   </Others>
   <Vcs>
-    <VcsType>PySvn</VcsType>
+    <VcsType>Subversion</VcsType>
     <VcsOptions>
       <dict>
         <key>
@@ -32,7 +35,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -40,7 +42,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -48,7 +49,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -56,7 +56,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -64,7 +63,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -72,7 +70,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -80,7 +77,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -88,7 +84,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -96,7 +91,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -104,7 +98,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -112,7 +105,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
         <key>
@@ -120,7 +112,6 @@
         </key>
         <value>
           <list>
-            <string></string>
           </list>
         </value>
       </dict>
