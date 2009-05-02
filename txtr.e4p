@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.4.dtd">
 <!-- eric4 project file for project txtr -->
-<!-- Saved: 2009-04-20, 21:14:02 -->
+<!-- Saved: 2009-04-20, 21:41:27 -->
 <!-- Copyright (C) 2009 Henryk Plötz, henryk@ploetzli.ch -->
 <Project version="4.4">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -11,6 +11,7 @@
   <Author>Henryk Plötz</Author>
   <Email>henryk@ploetzli.ch</Email>
   <Sources>
+    <Source>wstest.py</Source>
   </Sources>
   <Forms>
   </Forms>
@@ -23,7 +24,7 @@
   <Others>
   </Others>
   <Vcs>
-    <VcsType>Subversion</VcsType>
+    <VcsType>PySvn</VcsType>
     <VcsOptions>
       <dict>
         <key>
