@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import txtr
-import sys, sha
+import sys
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
@@ -9,7 +9,6 @@ if __name__ == "__main__":
     
     Txtr = txtr.txtr(auth_from="auth.txt")
     Txtr.login()
-    token = Txtr.token
     
     try:
         

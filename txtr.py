@@ -168,6 +168,14 @@ class txtr(object):
             "get_special_list", list_type)
     
     def create_from_web(self, url, display_name = None, categories = None, attributes = None, tags = None, append_to = "INBOX", append_position = -1):
+        udid = WSDocMgmt.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
+        
+        if append_to is not None:
+            self.add_documents_to_list([udid], append_to, append_position)
+        
+        return udid
+    
+    def add_documents_to_list(self, documents, append_to="INBOX", append_position=-1):
         list_id = None
         if append_to is not None:
             special = self.get_special_list(append_to)
@@ -176,12 +184,8 @@ class txtr(object):
             else:
                 list_id = append_to
         
-        udid = WSDocMgmt.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
-        
         if list_id is not None:
-            WSListMgmt.addDocumentsToList(self.token, list_id, [udid], append_position)
-        
-        return udid
+            WSListMgmt.addDocumentsToList(self.token, list_id, documents, append_position)
 
     
 
