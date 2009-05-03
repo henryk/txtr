@@ -152,10 +152,10 @@ class txtr(object):
         try:
             return self._cache[cache_key]
         except KeyError:
-            value = cb()
-            try: self._cache[cache_key] = value
-            except: pass # cache_key may not be usable as a key, e.g. in the case of mutable objects
+            self._cache[cache_key] = value = cb()
             return value
+        except TypeError: #uncacheable, e.g. mutable objects in cache_key
+            return cb()
     
     SPECIAL_LIST_VALUES = ["INBOX", "CLIPBOARD", "TRASH"]
     def get_special_list(self, list_type):
@@ -166,7 +166,6 @@ class txtr(object):
         
         return self._do_cache(lambda : WSListMgmt.getSpecialList(self.token, list_type, 0, 1), 
             "get_special_list", list_type)
-        
     
     def create_from_web(self, url, display_name = None, categories = None, attributes = None, tags = None, append_to = "INBOX", append_position = -1):
         list_id = None
