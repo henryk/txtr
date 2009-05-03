@@ -1,4 +1,16 @@
-import inspect, sys, urllib, re
+import inspect, sys, urllib, re, htmlentitydefs
+
+HTML_ENTITY_REPLACEMENTS = dict(htmlentitydefs.entitydefs)
+HTML_ENTITY_REPLACEMENTS.update( {
+    "nbsp": " ",
+})
+
+def clean_html(string):
+    string = re.sub('<br[^>]*>', "\n", string)
+    string = re.sub('&([a-z]+);', lambda m: HTML_ENTITY_REPLACEMENTS.get(m.group(1),"&%s;" % m.group(0)), string)
+    # FIXME Numeric references (e.g. &#937;)
+    return string
+
 
 class base_importer(object):
     def __init__(self, url, match = None):
@@ -19,7 +31,7 @@ class base_importer(object):
         data = dict(self.data)
         inst = list(instructions)
         
-        while "_result" not in data and len(inst) > 0:
+        while len(inst) > 0:
             mapping = inst.pop(0)
             url = mapping[0] % data
             content = urllib.urlopen(url).read()
@@ -30,14 +42,18 @@ class base_importer(object):
             
             data.update(m.groupdict())
         
-        if "_result" in data:
-            return data["_result"]
-        
-        return None
+        return data
     
     def load_bibtex(self):
         r = self.do_fetch(self.BIBTEX)
-        if r is not None: return r.strip()
+        
+        if r is None: return None
+        
+        if "_bibtex" in r: return r["_bibtex"].strip()
+        
+        if "_bibtex_in_html" in r:
+            return clean_html(r['_bibtex_in_html']).strip()
+        
         return None
 
 class IACR_ePrint_importer(base_importer):
@@ -46,7 +62,7 @@ class IACR_ePrint_importer(base_importer):
     ]
     
     BIBTEX = [
-        ("http://eprint.iacr.org/cgi-bin/cite.pl?entry=%(year)s/%(report)s", "<PRE>(?P<_result>.*?)</PRE>", re.I | re.S)
+        ("http://eprint.iacr.org/cgi-bin/cite.pl?entry=%(year)s/%(report)s", "<PRE>(?P<_bibtex>.*?)</PRE>", re.I | re.S)
     ]
 
 class ACM_Portal_importer(base_importer):
@@ -56,7 +72,16 @@ class ACM_Portal_importer(base_importer):
     
     BIBTEX = [
         ('http://portal.acm.org/citation.cfm?id=%(doi)s', "onClick=\"window.open\\('(?P<indirect>[^']+)'[^>]+>[^<]+BibTex<", re.I),
-        ('http://portal.acm.org/%(indirect)s', "<PRE[^>]*>(?P<_result>.*?)</PRE>", re.I | re.S)
+        ('http://portal.acm.org/%(indirect)s', "<PRE[^>]*>(?P<_bibtex>.*?)</PRE>", re.I | re.S)
+    ]
+
+class CiteSeerX_importer(base_importer):
+    URLS = [
+        r'http://citeseerx.ist.psu.edu/viewdoc/summary\?doi=(?P<doi>[^&]+)',
+    ]
+    
+    BIBTEX = [
+        ('http://citeseerx.ist.psu.edu/viewdoc/summary?doi=%(doi)s', "<h2>BibTeX.*?<div[^>]+>(?P<_bibtex_in_html>.*?)</div", re.I | re.S)
     ]
 
 def importer(url):
@@ -73,3 +98,5 @@ if __name__ == "__main__":
     print importer("http://eprint.iacr.org/2009/137").load_bibtex()
     print importer("http://portal.acm.org/citation.cfm?id=277650.277719").load_bibtex()
     print importer("http://portal.acm.org/citation.cfm?id=324550").load_bibtex()
+    print importer("http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.23.414").load_bibtex()
+    
