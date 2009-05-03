@@ -23,8 +23,10 @@ if __name__ == "__main__":
         inbox = txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, -1)
         txtr.WSListMgmt.addDocumentsToList(token, inbox["ID"], [new_id], -1)
     
-    pprint.pprint(txtr.WSDocMgmt.getDocument(token, "amgcg9"))
-    pprint.pprint(txtr.WSDocMgmt.getPotentialDocumentAttributeCategories(token, "amgcg9"))
+    #pprint.pprint(txtr.WSDocMgmt.getDocument(token, "amgcg9"))
+    #pprint.pprint(txtr.WSDocMgmt.getPotentialDocumentAttributeCategories(token, "amgcg9"))
     #pprint.pprint(txtr.WSUserMgmt.getUserSettings(token))
+    
+    print txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, 1)
     
     Txtr.logout()

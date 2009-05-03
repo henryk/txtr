@@ -12,16 +12,12 @@ if __name__ == "__main__":
     token = Txtr.token
     
     try:
-        new_id = txtr.WSDocMgmt.createDocumentFromWeb(token, 
-            sys.argv[1], 
-            None, None, None, None)
-        print "New document created: http://txtr.com/text/%s" % new_id
         
         try:
-            inbox = txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, -1)
-            txtr.WSListMgmt.addDocumentsToList(token, inbox["ID"], [new_id], -1)
+            new_id = Txtr.create_from_web(sys.argv[1], append_to="INBOX")
+            print "New document created: http://txtr.com/text/%s" % new_id
         except:
-            print >>sys.stderr, "Error while appending document to INBOX.\nThe document has been uploaded but will not be visible\nuntil it is appended to a list with a view.\n\n"
+            print >>sys.stderr, "Exception during document creation, the document may have been created but not appended."
             raise
     
     finally:

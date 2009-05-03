@@ -117,6 +117,8 @@ class txtr(object):
         
         self.token = None
         self.loginresponse = None
+        
+        self._cache = {}
     
     def _set_userdata(self, username=None, password=None, passhash=None, auth_from=None):
         if username is not None: self.user = username
@@ -144,5 +146,43 @@ class txtr(object):
     def logout(self):
         WSAuth.deAuthenticate(self.token)
         self.token = None
+    
+    def _do_cache(self, cb, funcname, *args):
+        cache_key = (funcname, args)
+        try:
+            return self._cache[cache_key]
+        except KeyError:
+            value = cb()
+            try: self._cache[cache_key] = value
+            except: pass # cache_key may not be usable as a key, e.g. in the case of mutable objects
+            return value
+    
+    SPECIAL_LIST_VALUES = ["INBOX", "CLIPBOARD", "TRASH"]
+    def get_special_list(self, list_type):
+        if list_type is None: return None
+        if list_type not in self.SPECIAL_LIST_VALUES: return None
+        if not isinstance(list_type, basestring): 
+            raise TypeError, "list_type argument must be string, not %s" % type(list_type)
+        
+        return self._do_cache(lambda : WSListMgmt.getSpecialList(self.token, list_type, 0, 1), 
+            "get_special_list", list_type)
+        
+    
+    def create_from_web(self, url, display_name = None, categories = None, attributes = None, tags = None, append_to = "INBOX", append_position = -1):
+        list_id = None
+        if append_to is not None:
+            special = self.get_special_list(append_to)
+            if special is not None:
+                list_id = special["ID"]
+            else:
+                list_id = append_to
+        
+        udid = WSDocMgmt.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
+        
+        if list_id is not None:
+            WSListMgmt.addDocumentsToList(self.token, list_id, [udid], append_position)
+        
+        return udid
+
     
 
