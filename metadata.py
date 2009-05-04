@@ -1,5 +1,15 @@
 import inspect, sys, urllib, re, htmlentitydefs
 
+NEED_BIBTEX = 0
+
+try:
+    import _bibtex
+except:
+    if NEED_BIBTEX:
+        print >>sys.stderr, "Couldn't load _bibtex module, please install python-bibtex"
+        raise
+
+
 HTML_ENTITY_REPLACEMENTS = dict(htmlentitydefs.entitydefs)
 HTML_ENTITY_REPLACEMENTS.update( {
     "nbsp": " ",
@@ -64,6 +74,8 @@ class IACR_ePrint_importer(base_importer):
     BIBTEX = [
         ("http://eprint.iacr.org/cgi-bin/cite.pl?entry=%(year)s/%(report)s", "<PRE>(?P<_bibtex>.*?)</PRE>", re.I | re.S)
     ]
+    
+    DOCUMENT_URL = "http://eprint.iacr.org/%(year)s/%(report)s.pdf"
 
 class ACM_Portal_importer(base_importer):
     URLS = [
@@ -95,8 +107,28 @@ def importer(url):
     raise ValueError, "No importer found for url '%s'" % url
 
 if __name__ == "__main__":
-    print importer("http://eprint.iacr.org/2009/137").load_bibtex()
-    print importer("http://portal.acm.org/citation.cfm?id=277650.277719").load_bibtex()
-    print importer("http://portal.acm.org/citation.cfm?id=324550").load_bibtex()
-    print importer("http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.23.414").load_bibtex()
+    if False:
+        print importer("http://portal.acm.org/citation.cfm?id=277650.277719").load_bibtex()
+        print importer("http://portal.acm.org/citation.cfm?id=324550").load_bibtex()
+        print importer("http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.23.414").load_bibtex()
+        print importer("http://eprint.iacr.org/2009/137").load_bibtex()
+    else:
+        test = """@misc{cryptoeprint:2009:137,
+    author = {Nicolas T. Courtois},
+    title = {The Dark Side of Security by Obscurity and Cloning MiFare Classic Rail and Building Passes Anywhere, Anytime},
+    howpublished = {Cryptology ePrint Archive, Report 2009/137},
+    year = {2009},
+    note = {\url{http://eprint.iacr.org/}},
+}"""
+
+    
+    if "_bibtex" in sys.modules:
+        b = _bibtex.open_string("foo", test, True)
+        print b
+        
+        _bibtex.first(b)
+        i = _bibtex.next(b)
+        while i:
+            print i
+            i = _bibtex.next(b)
     
