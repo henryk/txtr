@@ -7,7 +7,7 @@ except ImportError:
 
 class _JSONBASE(object):
     RPCURL = "http://txtr.com/json/rpc"
-    DEBUG = 0
+    DEBUG = 1
     
     def __getattr__(self, fname):
         return lambda *args, **kwargs: self._docall(fname, *args, **kwargs)
@@ -119,6 +119,10 @@ class txtr(object):
         self.loginresponse = None
         
         self._cache = {}
+    
+    def __del__(self):
+        if self.token is not None:
+            self.logout()
     
     def _set_userdata(self, username=None, password=None, passhash=None, auth_from=None):
         if username is not None: self.user = username

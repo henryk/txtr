@@ -107,11 +107,12 @@ def importer(url):
     raise ValueError, "No importer found for url '%s'" % url
 
 if __name__ == "__main__":
-    if False:
+    if True:
         print importer("http://portal.acm.org/citation.cfm?id=277650.277719").load_bibtex()
         print importer("http://portal.acm.org/citation.cfm?id=324550").load_bibtex()
         print importer("http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.23.414").load_bibtex()
-        print importer("http://eprint.iacr.org/2009/137").load_bibtex()
+        test = importer("http://eprint.iacr.org/2009/137").load_bibtex()
+        print test
     else:
         test = """@misc{cryptoeprint:2009:137,
     author = {Nicolas T. Courtois},

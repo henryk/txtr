@@ -14,15 +14,6 @@ if __name__ == "__main__":
     
     #print txtr.WSDocMgmt.suggestTitleImages(token, "akymg9")
 
-    if False:
-        new_id = txtr.WSDocMgmt.createDocumentFromWeb(token, 
-            "http://docs.python.org/library/urllib.html", 
-            None, None, None, None)
-        print new_id
-        
-        inbox = txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, -1)
-        txtr.WSListMgmt.addDocumentsToList(token, inbox["ID"], [new_id], -1)
-    
     #pprint.pprint(txtr.WSDocMgmt.getDocument(token, "amgcg9"))
     #pprint.pprint(txtr.WSDocMgmt.getPotentialDocumentAttributeCategories(token, "amgcg9"))
     #pprint.pprint(txtr.WSUserMgmt.getUserSettings(token))
