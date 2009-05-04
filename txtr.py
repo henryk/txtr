@@ -7,7 +7,7 @@ except ImportError:
 
 class _JSONBASE(object):
     RPCURL = "http://txtr.com/json/rpc"
-    DEBUG = 1
+    DEBUG = 0
     
     def __getattr__(self, fname):
         return lambda *args, **kwargs: self._docall(fname, *args, **kwargs)
