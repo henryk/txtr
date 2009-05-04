@@ -107,7 +107,7 @@ def importer(url):
     raise ValueError, "No importer found for url '%s'" % url
 
 if __name__ == "__main__":
-    if True:
+    if False:
         print importer("http://portal.acm.org/citation.cfm?id=277650.277719").load_bibtex()
         print importer("http://portal.acm.org/citation.cfm?id=324550").load_bibtex()
         print importer("http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.23.414").load_bibtex()
@@ -121,7 +121,6 @@ if __name__ == "__main__":
     year = {2009},
     note = {\url{http://eprint.iacr.org/}},
 }"""
-
     
     if "_bibtex" in sys.modules:
         b = _bibtex.open_string("foo", test, True)
@@ -131,5 +130,10 @@ if __name__ == "__main__":
         i = _bibtex.next(b)
         while i:
             print i
+            items = i[4]
+            for k in items.keys():
+                items[k] = _bibtex.expand(b, items[k], -1)
+            print items
+            
             i = _bibtex.next(b)
     
