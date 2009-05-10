@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.4.dtd">
 <!-- eric4 project file for project txtr -->
-<!-- Saved: 2009-05-02, 18:25:47 -->
+<!-- Saved: 2009-05-04, 07:17:05 -->
 <!-- Copyright (C) 2009 Henryk Plötz, henryk@ploetzli.ch -->
 <Project version="4.4">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -15,6 +15,8 @@
     <Source>jsontest.py</Source>
     <Source>txtr.py</Source>
     <Source>create_from_web.py</Source>
+    <Source>lost+found.py</Source>
+    <Source>metadata.py</Source>
   </Sources>
   <Forms>
   </Forms>

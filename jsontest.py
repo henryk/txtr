@@ -18,6 +18,15 @@ if __name__ == "__main__":
     #pprint.pprint(txtr.WSDocMgmt.getPotentialDocumentAttributeCategories(token, "amgcg9"))
     #pprint.pprint(txtr.WSUserMgmt.getUserSettings(token))
     
-    print txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, 1)
+    #print txtr.WSListMgmt.getSpecialList(token, "INBOX", 0, 1)
+    
+    if False:
+        alldocs = {}
+        
+        l = txtr.WSDocMgmt.getAllDocumentIDs(token, False)
+        for e in l:
+            alldocs[e] = txtr.WSDocMgmt.getDocument(token, e)
+        
+        pprint.pprint(alldocs)
     
     Txtr.logout()

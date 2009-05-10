@@ -155,7 +155,8 @@ class _WSDocMgmt(_JSONBASE):
         "getPotentialDocumentAttributeCategories": ["token", "documentID"],
         "addDocumentAttributeCategory": ["token", "documentIDs", "categoryID"],
         "removeDocumentAttributeCategory": ["token", "documentIDs", "categoryID"],
-        "changeDocumentAttributes": ["token", "documentIDs", "attributes"]
+        "changeDocumentAttributes": ["token", "documentIDs", "attributes"],
+        "changeDocumentTags": ["token", "documentIDs", "tagsToAdd", "tagsToRemove"],
     }
 WSDocMgmt = _WSDocMgmt(_COOKIE)
 
@@ -167,6 +168,8 @@ class _WSUserMgmt(_JSONBASE):
 WSUserMgmt = _WSUserMgmt(_COOKIE)
 
 class txtr(object):
+    DELIVERY_BASE_URL = "http://txtr.com/delivery/document/"
+    
     def __init__(self, username=None, password=None, passhash=None, auth_from=None):
         self.user = None
         self.passh = None
@@ -247,6 +250,17 @@ class txtr(object):
         
         if list_id is not None:
             WSListMgmt.addDocumentsToList(self.token, list_id, documents, append_position)
+    
+    def delivery_document_stream(self, document_id, version=None, format=None):
+        url = self.DELIVERY_BASE_URL + document_id
+        url = url + "?token=" + urllib.quote(self.token)
+        if version is not None:
+            url = url + "&v=" + urllib.quote(version)
+        if format is not None:
+            url = url + "&format=" + urllib.quote(format)
+        
+        fp = urllib.urlopen(url)
+        return fp
 
     
 
