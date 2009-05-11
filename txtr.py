@@ -157,6 +157,7 @@ class _WSDocMgmt(_JSONBASE):
         "removeDocumentAttributeCategory": ["token", "documentIDs", "categoryID"],
         "changeDocumentAttributes": ["token", "documentIDs", "attributes"],
         "changeDocumentTags": ["token", "documentIDs", "tagsToAdd", "tagsToRemove"],
+        "getAllDocumentsConstrained": ["token", "search", "offset", "count"],
     }
 WSDocMgmt = _WSDocMgmt(_COOKIE)
 
