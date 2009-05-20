@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Wed May 20 16:59:22 2009 -->
+<!--Generated with glade3 3.4.5 on Wed May 20 17:04:11 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>
@@ -19,7 +19,7 @@
             <child>
               <widget class="GtkMenuItem" id="menuitem1">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">_Datei</property>
+                <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child>
                   <widget class="GtkMenu" id="menu1">
@@ -27,7 +27,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="upload">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Upload ...</property>
+                        <property name="label" translatable="yes">_Upload ...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_upload_activate"/>
                         <child internal-child="image">
@@ -58,7 +58,7 @@
             <child>
               <widget class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">_Hilfe</property>
+                <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
                 <child>
                   <widget class="GtkMenu" id="menu3">
@@ -88,7 +88,7 @@
               <widget class="GtkLabel" id="label1">
                 <property name="visible">True</property>
                 <property name="xpad">12</property>
-                <property name="label" translatable="yes">Ziel: </property>
+                <property name="label" translatable="yes">Target:</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
