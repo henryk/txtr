@@ -1,4 +1,4 @@
-import urllib, sys, sha, random
+import urllib, urlparse, sys, sha, random, httplib, socket
 
 try:
     import simplejson
@@ -10,6 +10,77 @@ try:
     import httplib2
 except ImportError:
     pass
+
+## Note: The following is a backport of the essential parts of the httplib in Python 2.6
+class _HTTPConnectionWithFileUpload(httplib.HTTPConnection):
+    def send(self, str):
+        """Send `str' to the server."""
+        if self.sock is None:
+            if self.auto_open:
+                self.connect()
+            else:
+                raise NotConnected()
+
+        # send the data to the server. if we get a broken pipe, then close
+        # the socket. we want to reconnect when somebody tries to send again.
+        #
+        # NOTE: we DO propagate the error, though, because we cannot simply
+        #       ignore the error... the caller will know if they can retry.
+        if self.debuglevel > 0:
+            print "send:", repr(str)
+        try:
+            blocksize=8192
+            if hasattr(str,'read') :
+                if self.debuglevel > 0: print "sendIng a read()able"
+                data=str.read(blocksize)
+                while data:
+                    self.sock.sendall(data)
+                    data=str.read(blocksize)
+            else:
+                self.sock.sendall(str)
+        except socket.error, v:
+            if v[0] == 32:      # Broken pipe
+                self.close()
+            raise
+    
+    def _send_request(self, method, url, body, headers):
+        # honour explicitly requested Host: and Accept-Encoding headers
+        header_names = dict.fromkeys([k.lower() for k in headers])
+        skips = {}
+        if 'host' in header_names:
+            skips['skip_host'] = 1
+        if 'accept-encoding' in header_names:
+            skips['skip_accept_encoding'] = 1
+
+        self.putrequest(method, url, **skips)
+
+        if body and ('content-length' not in header_names):
+            thelen=None
+            try:
+                thelen=str(len(body))
+            except TypeError, te:
+                # If this is a file-like object, try to
+                # fstat its file descriptor
+                import os
+                try:
+                    thelen = str(os.fstat(body.fileno()).st_size)
+                except (AttributeError, OSError):
+                    # Don't send a length if this failed
+                    if self.debuglevel > 0: print "Cannot stat!!"
+
+            if thelen is not None:
+                self.putheader('Content-Length',thelen)
+        for hdr, value in headers.iteritems():
+            self.putheader(hdr, value)
+        self.endheaders()
+
+        if body:
+            self.send(body)
+
+if sys.hexversion >= 0x02060000:
+    _HTTP_Connection_Class = httplib.HTTPConnection
+else:
+    _HTTP_Connection_Class = _HTTPConnectionWithFileUpload
 
 class _HTTP_Wrapper(object):
     """A simple http wrapper object to try to use httplib2 if possible, and fall back to urllib otherwise.
@@ -141,6 +212,7 @@ class _WSListMgmt(_JSONBASE):
         "getList": ["token", "listID", "offset", "count"],
         "getSpecialList": ["token", "specialListType", "offset", "count"],
         "addDocumentsToList": ["token", "listID", "documentIDs", "addAt"],
+        "getListsForUser": ["token", "userName"],
     }
 WSListMgmt = _WSListMgmt(_COOKIE)
 
@@ -209,8 +281,9 @@ class txtr(object):
         self.token = self.loginresponse["token"]
     
     def logout(self):
-        WSAuth.deAuthenticate(self.token)
-        self.token = None
+        if self.token is not None:
+            WSAuth.deAuthenticate(self.token)
+            self.token = None
     
     def _do_cache(self, cb, funcname, *args):
         cache_key = (funcname, args)
@@ -262,6 +335,25 @@ class txtr(object):
         
         fp = urllib.urlopen(url)
         return fp
-
     
+    def delivery_upload_stream(self, fp, file_name, document_id=None):
+        url = self.DELIVERY_BASE_URL
+        if document_id is not None:
+            url = url + document_id + "/upload/version"
+            raise NotImplementedError, "Version upload not implemented"
+        else:
+            url = url + "upload"
+        url = url + "?token=" + urllib.quote(self.token)
+        url = url + "&fileName=" + urllib.quote(file_name)
+        
+        parsed_url = urlparse.urlparse(url)
+        assert parsed_url.scheme.lower() == "http"
+        
+        connection = _HTTP_Connection_Class(parsed_url.netloc)
+        r = connection.request("POST", parsed_url.path + "?" + parsed_url.query, body=fp)
+        
+        return connection
+
+    def get_lists(self, username=None):
+        return WSListMgmt.getListsForUser(self.token, username)
 
