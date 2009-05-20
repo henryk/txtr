@@ -132,6 +132,9 @@ class Upload_GUI(object):
         self.main_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_main")
         self.main_window = self.main_window_xml.get_widget("uploader_main")
         
+        self.about_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_about")
+        self.about_window = self.about_window_xml.get_widget("uploader_about")
+        
         for i in "statusbar", "target", "upload_view":
             setattr(self, i, self.main_window_xml.get_widget(i))
         
@@ -150,13 +153,18 @@ class Upload_GUI(object):
         self.upload_column = gtk.TreeViewColumn('Uploads')
         self.upload_view.append_column(self.upload_column)
         
+        self.upload_column_icon_cell = gtk.CellRendererPixbuf()
+        self.upload_column_icon_cell.set_property("stock-size", gtk.ICON_SIZE_DIALOG)
+        self.upload_column.pack_start(self.upload_column_icon_cell, False)
+        self.upload_column.set_cell_data_func(self.upload_column_icon_cell, self.upload_callback_icon)
+        
         self.upload_column_text_cell = gtk.CellRendererText()
-        self.upload_column.pack_start(self.upload_column_text_cell, True)
+        self.upload_column.pack_end(self.upload_column_text_cell, True)
         self.upload_column.set_cell_data_func(self.upload_column_text_cell, self.upload_callback_text)
         
         self.upload_column_progress_cell = gtk.CellRendererProgress()
         self.upload_column_progress_cell.set_property("width", 100)
-        self.upload_column.pack_end(self.upload_column_progress_cell, False)
+        self.upload_column.pack_start(self.upload_column_progress_cell, False)
         self.upload_column.set_cell_data_func(self.upload_column_progress_cell, self.upload_callback_progress)
         
         ## Set up API and log in
@@ -229,6 +237,10 @@ class Upload_GUI(object):
             for m in re.finditer(r'[a-zA-Z]{2,}://\S+', selection_data.get_text()):
                 self.add_upload(m.group(0))
     
+    def on_about_activate(self, menuitem):
+        result = self.about_window.run()
+        self.about_window.hide()
+    
     ## Indirectly called/utility methods
     def add_upload(self, uri):
         "Add and start an upload"
@@ -254,6 +266,15 @@ class Upload_GUI(object):
         index = [i for i,e in enumerate(self.upload_store) if e[0] is upload][0] 
         
         self.upload_store.emit("row-changed", (index,), self.upload_store.get_iter((index,)))
+    
+    
+    def upload_callback_icon(self, column, cell_renderer, tree_model, iter):
+        "Called from the tree view when something in the tree model/store changes"
+        upload = tree_model.get_value(iter, 0)
+        if "." in upload.file_name: type = upload.file_name.split(".")[-1].lower()
+        else: type = ".none"
+        
+        cell_renderer.set_property('stock-id', gtk.STOCK_FILE)
     
     def upload_callback_text(self, column, cell_renderer, tree_model, iter):
         "Called from the tree view when something in the tree model/store changes"
