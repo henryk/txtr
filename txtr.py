@@ -338,7 +338,7 @@ class txtr(object):
         fp = urllib.urlopen(url)
         return fp
     
-    def delivery_upload_document_file(self, fp, file_name, document_id=None):
+    def delivery_upload_document_file(self, fp, file_name, document_id=None, append_list=None):
         """Upload a document from a file-like object (fp).
         Returns a tuple (status, new document-id). Status should be "OK"."""
         url = self.DELIVERY_BASE_URL
@@ -349,6 +349,8 @@ class txtr(object):
             url = url + "upload"
         url = url + "?token=" + urllib.quote(self.token)
         url = url + "&fileName=" + urllib.quote(file_name)
+        if append_list is not None:
+            url = url + "&addToList=" + urllib.quote(append_list)
         
         parsed_url = urlparse.urlparse(url)
         assert parsed_url.scheme.lower() == "http"

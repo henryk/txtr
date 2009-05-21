@@ -28,9 +28,10 @@ class _file_with_read_callback:
     def __len__(self): return self.size
     
 class Upload_Thread(object):
-    def __init__(self, uri, parent):
+    def __init__(self, uri, parent, append_list=None):
         self.uri = uri
         self.parent = parent
+        self.append_list = append_list
         self.harakiri = False
         
         self.thread = threading.Thread(target=self.run)
@@ -46,7 +47,7 @@ class Upload_Thread(object):
             pass
 
 class Upload_Thread_FILE(Upload_Thread):
-    def __init__(self, uri, parent):
+    def __init__(self, uri, parent, append_list=None):
         if not uri.lower().startswith("file:///"):
             raise ValueError, "Unsupported file uri format: %r" % uri
         self.file = urllib.unquote( uri[len("file://"):] ) # FIXME Handling encoding: UTF-8 to filesystem
@@ -59,7 +60,7 @@ class Upload_Thread_FILE(Upload_Thread):
         self.finished = False
         self.result = None
         
-        super(Upload_Thread_FILE, self).__init__(uri, parent)
+        super(Upload_Thread_FILE, self).__init__(uri, parent, append_list)
     
     def do_upload(self):
         def update_gui(size):
@@ -72,7 +73,8 @@ class Upload_Thread_FILE(Upload_Thread):
         
         result = self.parent.txtr.delivery_upload_document_file(
             fp = _file_with_read_callback(self.fd, update_gui),
-            file_name = self.file_name)
+            file_name = self.file_name,
+            append_list = self.append_list)
         
         self.result = result
         self.finished = True
@@ -84,20 +86,20 @@ class Upload_Thread_FILE(Upload_Thread):
             if self.harakiri: break
 
 class Upload_Thread_HTTP(Upload_Thread):
-    def __init__(self, uri, parent):
+    def __init__(self, uri, parent, append_list=None):
         raise NotImplementedError, "HTTP uploads not implemented yet"
         
-        super(Upload_Thread_HTTP, self).__init__(uri, parent)
+        super(Upload_Thread_HTTP, self).__init__(uri, parent, append_list)
 
 class Upload_Thread_TEST(Upload_Thread):
-    def __init__(self, uri, parent):
+    def __init__(self, uri, parent, append_list=None):
         self.size = 9000
         self.file_name = "Test file"
         self.bytes_done = 0
         self.percent_done = 0
         self.finished = False
         self.result = None
-        super(Upload_Thread_TEST, self).__init__(uri, parent)
+        super(Upload_Thread_TEST, self).__init__(uri, parent, append_list)
     
     def do_upload(self):
         for i in xrange(0, self.size, self.size/13 ):
@@ -121,23 +123,30 @@ class Upload_Thread_TEST(Upload_Thread):
 
 class Document_Widget(gtk.Table, object):
     @classmethod
-    def new_from_uri(cls, parent, uri):
-        t = None
+    def new_from_uri(cls, parent, uri, target=None):
+        if target is None:
+            append_list = None
+            list_name = "No list"
+        else:
+            append_list = target[0]
+            list_name = target[1]
+        
+        thread = None
         try:
             (scheme,) = uri.split(":",1)[:1]
             c = globals().get("Upload_Thread_%s" % scheme.upper(), None)
             if c is not None:
-                t = c(uri, None)
+                thread = c(uri, None, append_list=append_list)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
             print e
         
-        r = cls(parent, upload_thread=t)
-        r.upload_callback(t)
+        r = cls(parent, upload_thread=thread, list_name=list_name)
+        r.upload_callback(thread)
         return r
     
-    def __init__(self, parent, document_id = None, upload_thread = None):
+    def __init__(self, parent, document_id = None, upload_thread = None, list_name = None):
         if (document_id is None and upload_thread is None) or \
             (document_id is not None and upload_thread is not None):
                 raise TypeError, "Need EITHER document_id OR upload_thread argument"
@@ -147,6 +156,7 @@ class Document_Widget(gtk.Table, object):
         
         self._parent = parent
         self._upload_thread = upload_thread
+        self._list_name = list_name
         upload_thread.parent = self
         
         gtk.Table.__init__(self, rows=3, columns=3)
@@ -156,6 +166,7 @@ class Document_Widget(gtk.Table, object):
         self._progress_bar = gtk.ProgressBar()
         
         self._label1.set_property("xpad", 12)
+        self._label1.set_property("xalign", 0)
         self._progress_bar.set_pulse_step(0.1)
         
         self.attach(self._icon, 0, 1, 0, 3, gtk.FILL, gtk.FILL)
@@ -180,6 +191,8 @@ class Document_Widget(gtk.Table, object):
                     additional_info = ", upload OK: %s" % upload.result[1]
                 else:
                     additional_info = ", upload error: %s" % repr(upload.result)
+                    import pprint
+                    pprint.pprint(upload.result)
             else:
                 additional_info = ""
             self._label1.set_text("%s: %i bytes uploaded%s" % 
@@ -306,9 +319,15 @@ class Upload_GUI(object):
     ## Indirectly called/utility methods
     def add_upload(self, uri):
         "Add and start an upload"
+        target_list = self.target.get_active()
+        if target_list == -1:
+            target = None
+        else:
+            target = self.available_lists[target_list]
+        
         document = None
         try:
-            document = Document_Widget.new_from_uri(self, uri)
+            document = Document_Widget.new_from_uri(self, uri, target)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
@@ -361,9 +380,10 @@ if __name__ == "__main__":
     gtk.gdk.threads_init()
     
     g = Upload_GUI()
-    gobject.idle_add(lambda: g.add_upload("test://1") and None)
-    gobject.timeout_add(5000, lambda: g.add_upload("test://2") and None )
-    gobject.timeout_add(6000, lambda: g.add_upload("test://2") and None )
-    gobject.timeout_add(7000, lambda: g.add_upload("test://2") and None )
-    gobject.timeout_add(8000, lambda: g.add_upload("test://2") and None )
+    if False:
+        gobject.idle_add(lambda: g.add_upload("test://1") and None)
+        gobject.timeout_add(5000, lambda: g.add_upload("test://2") and None )
+        gobject.timeout_add(6000, lambda: g.add_upload("test://2") and None )
+        gobject.timeout_add(7000, lambda: g.add_upload("test://2") and None )
+        gobject.timeout_add(8000, lambda: g.add_upload("test://2") and None )
     gtk.main()
