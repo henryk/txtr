@@ -119,6 +119,90 @@ class Upload_Thread_TEST(Upload_Thread):
             gobject.idle_add(self.parent.upload_callback, self)
             if self.harakiri: break
 
+class Document_Widget(gtk.Table, object):
+    @classmethod
+    def new_from_uri(cls, parent, uri):
+        t = None
+        try:
+            (scheme,) = uri.split(":",1)[:1]
+            c = globals().get("Upload_Thread_%s" % scheme.upper(), None)
+            if c is not None:
+                t = c(uri, None)
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception, e:
+            print e
+        
+        r = cls(parent, upload_thread=t)
+        r.upload_callback(t)
+        return r
+    
+    def __init__(self, parent, document_id = None, upload_thread = None):
+        if (document_id is None and upload_thread is None) or \
+            (document_id is not None and upload_thread is not None):
+                raise TypeError, "Need EITHER document_id OR upload_thread argument"
+        
+        if document_id is not None:
+            raise NotImplementedError, "Widget from document not implemented yet"
+        
+        self._parent = parent
+        self._upload_thread = upload_thread
+        upload_thread.parent = self
+        
+        gtk.Table.__init__(self, rows=3, columns=3)
+        
+        self._icon = gtk.image_new_from_stock("gtk-file", gtk.ICON_SIZE_DIALOG)
+        self._label1 = gtk.Label()
+        self._progress_bar = gtk.ProgressBar()
+        
+        self._label1.set_property("xpad", 12)
+        self._progress_bar.set_pulse_step(0.1)
+        
+        self.attach(self._icon, 0, 1, 0, 3, gtk.FILL, gtk.FILL)
+        self.attach(self._label1, 1, 2, 0, 1)
+        self.attach(self._progress_bar, 1, 2, 1, 2, xpadding=12)
+    
+    def start(self):
+        self._upload_thread.start()
+    def stop(self):
+        self._upload_thread.schedule_stop()
+
+    def upload_callback(self, upload):
+        "Called from Upload_Thread_* objects to notify about a change in state, update GUI"
+        
+        ## Update the text field
+        if not upload.finished:
+            self._label1.set_text("%s: %i of %i bytes (%3.f%%)" % 
+                (upload.file_name, upload.bytes_done, upload.size, upload.percent_done))
+        else:
+            if upload.result is not None:
+                if upload.result[0] == "OK": 
+                    additional_info = ", upload OK: %s" % upload.result[1]
+                else:
+                    additional_info = ", upload error: %s" % repr(upload.result)
+            else:
+                additional_info = ""
+            self._label1.set_text("%s: %i bytes uploaded%s" % 
+                (upload.file_name, upload.bytes_done, additional_info))
+        
+        ## Update the progress bar
+        if not upload.finished:
+            self._progress_bar.set_text("")
+            self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
+        else:
+            self._progress_bar.set_text("finished")
+            
+            upload._i = getattr(upload, "_i", 0) + 1
+            if upload._i > 50:
+                self._progress_bar.set_fraction(1)
+                self._progress_bar.set_text("finished")
+            else:
+                self._progress_bar.pulse()
+                self._progress_bar.set_text("processing")
+    
+    txtr = property(lambda self: self._parent.txtr)
+
+
 GLADE_FILE = "uploader.glade"
 DRY_RUN = False
 class Upload_GUI(object):
@@ -131,7 +215,7 @@ class Upload_GUI(object):
         self.about_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_about")
         self.about_window = self.about_window_xml.get_widget("uploader_about")
         
-        for i in "statusbar", "target", "upload_view":
+        for i in "statusbar", "target", "documents_vbox":
             setattr(self, i, self.main_window_xml.get_widget(i))
         
         self.main_window_xml.signal_autoconnect(self)
@@ -143,25 +227,7 @@ class Upload_GUI(object):
         
         gtk.quit_add(0, self.fast_shutdown)
         
-        ## Set up the upload treeview, model, etc.
-        self.upload_store = gtk.ListStore(object)
-        self.upload_view.set_model(self.upload_store)
-        self.upload_column = gtk.TreeViewColumn('Uploads')
-        self.upload_view.append_column(self.upload_column)
-        
-        self.upload_column_icon_cell = gtk.CellRendererPixbuf()
-        self.upload_column_icon_cell.set_property("stock-size", gtk.ICON_SIZE_DIALOG)
-        self.upload_column.pack_start(self.upload_column_icon_cell, False)
-        self.upload_column.set_cell_data_func(self.upload_column_icon_cell, self.upload_callback_icon)
-        
-        self.upload_column_text_cell = gtk.CellRendererText()
-        self.upload_column.pack_end(self.upload_column_text_cell, True)
-        self.upload_column.set_cell_data_func(self.upload_column_text_cell, self.upload_callback_text)
-        
-        self.upload_column_progress_cell = gtk.CellRendererProgress()
-        self.upload_column_progress_cell.set_property("width", 100)
-        self.upload_column.pack_start(self.upload_column_progress_cell, False)
-        self.upload_column.set_cell_data_func(self.upload_column_progress_cell, self.upload_callback_progress)
+        self.documents = []
         
         ## Set up API and log in
         self.txtr = txtr.txtr(auth_from="auth.txt")
@@ -240,75 +306,23 @@ class Upload_GUI(object):
     ## Indirectly called/utility methods
     def add_upload(self, uri):
         "Add and start an upload"
-        t = None
+        document = None
         try:
-            (scheme,) = uri.split(":",1)[:1]
-            c = globals().get("Upload_Thread_%s" % scheme.upper(), None)
-            if c is not None:
-                t = c(uri, self)
+            document = Document_Widget.new_from_uri(self, uri)
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
             print e
         
-        if t is not None:
-            self.upload_store.append( (t,) )
-            t.start()
-    
-    def upload_callback(self, upload):
-        "Called from Upload_Thread_* objects to notify about a change in state, update GUI"
-        
-        # Find ListStore row for this upload
-        index = [i for i,e in enumerate(self.upload_store) if e[0] is upload][0] 
-        
-        self.upload_store.emit("row-changed", (index,), self.upload_store.get_iter((index,)))
-    
-    
-    def upload_callback_icon(self, column, cell_renderer, tree_model, iter):
-        "Called from the tree view when something in the tree model/store changes"
-        upload = tree_model.get_value(iter, 0)
-        if "." in upload.file_name: type = upload.file_name.split(".")[-1].lower()
-        else: type = ".none"
-        
-        cell_renderer.set_property('stock-id', gtk.STOCK_FILE)
-    
-    def upload_callback_text(self, column, cell_renderer, tree_model, iter):
-        "Called from the tree view when something in the tree model/store changes"
-        upload = tree_model.get_value(iter, 0)
-        if not upload.finished:
-            cell_renderer.set_property('text', "%s: %i of %i bytes (%3.f%%)" % 
-                (upload.file_name, upload.bytes_done, upload.size, upload.percent_done))
-        else:
-            if upload.result is not None:
-                if upload.result[0] == "OK": 
-                    additional_info = ", upload OK: %s" % upload.result[1]
-                else:
-                    additional_info = ", upload error: %s" % repr(upload.result)
-            else:
-                additional_info = ""
-            cell_renderer.set_property('text', "%s: %i bytes uploaded%s" % 
-                (upload.file_name, upload.bytes_done, additional_info))
-    
-    def upload_callback_progress(self, column, cell_renderer, tree_model, iter):
-        "Called from the tree view when something in the tree model/store changes"
-        upload = tree_model.get_value(iter, 0)
-        if not upload.finished:
-            cell_renderer.set_property('pulse', -1)
-            cell_renderer.set_property('value', upload.percent_done)
-            cell_renderer.set_property('text', None)
-        else:
-            cell_renderer.set_property('value', 0)
-            upload._i = getattr(upload, "_i", 0) + 1
-            if upload._i > 50:
-                cell_renderer.set_property('pulse', gobject.G_MAXINT)
-                cell_renderer.set_property('text', "finished")
-            else:
-                cell_renderer.set_property('pulse', upload._i)
-                cell_renderer.set_property('text', "processing")
+        if document is not None:
+            self.documents.append(document)
+            self.documents_vbox.pack_start(document, expand=False)
+            document.show_all()
+            document.start()
     
     def do_shutdown(self):
-        for u in self.upload_store:
-            u[0].schedule_stop()
+        for document in self.documents:
+            document.stop()
         
         self.status("login", "Logging out ...")
         self.txtr.logout()
@@ -349,4 +363,7 @@ if __name__ == "__main__":
     g = Upload_GUI()
     gobject.idle_add(lambda: g.add_upload("test://1") and None)
     gobject.timeout_add(5000, lambda: g.add_upload("test://2") and None )
+    gobject.timeout_add(6000, lambda: g.add_upload("test://2") and None )
+    gobject.timeout_add(7000, lambda: g.add_upload("test://2") and None )
+    gobject.timeout_add(8000, lambda: g.add_upload("test://2") and None )
     gtk.main()
