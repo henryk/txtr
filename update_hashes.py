@@ -35,7 +35,7 @@ def hash_document(Txtr, doc):
         
         if len(need_hashes) == 0: continue
         
-        content_stream = Txtr.delivery_document_stream(doc, version)
+        content_stream = Txtr.delivery_download_document_stream(doc, version)
         content = content_stream.read()
         content_stream.close()
         

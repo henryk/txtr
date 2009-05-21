@@ -23,11 +23,9 @@ class _file_with_read_callback:
         self.cb(len(data))
         return data
     
-    def fileno(self):
-        return self.f.fileno()
-    
-    def __len__(self):
-        return self.size
+    def fileno(self):  return self.f.fileno()
+    def close(self):   return self.f.close()
+    def __len__(self): return self.size
     
 class Upload_Thread(object):
     def __init__(self, uri, parent):
@@ -59,6 +57,7 @@ class Upload_Thread_FILE(Upload_Thread):
         self.bytes_done = 0
         self.percent_done = 0
         self.finished = False
+        self.result = None
         
         super(Upload_Thread_FILE, self).__init__(uri, parent)
     
@@ -71,9 +70,11 @@ class Upload_Thread_FILE(Upload_Thread):
             if self.harakiri:
                 raise self.HarakiriException, "Get me out of here"
         
-        connection = self.parent.txtr.delivery_upload_stream(fp=_file_with_read_callback(self.fd, update_gui),
+        result = self.parent.txtr.delivery_upload_document_file(
+            fp = _file_with_read_callback(self.fd, update_gui),
             file_name = self.file_name)
         
+        self.result = result
         self.finished = True
         gobject.idle_add(self.parent.upload_callback, self)
         
@@ -81,13 +82,6 @@ class Upload_Thread_FILE(Upload_Thread):
             time.sleep(0.1)
             gobject.idle_add(self.parent.upload_callback, self)
             if self.harakiri: break
-        
-        response = connection.getresponse()
-        response_body = response.read()
-        
-        print connection, response, response_body
-        
-        connection.close()
 
 class Upload_Thread_HTTP(Upload_Thread):
     def __init__(self, uri, parent):
@@ -102,6 +96,7 @@ class Upload_Thread_TEST(Upload_Thread):
         self.bytes_done = 0
         self.percent_done = 0
         self.finished = False
+        self.result = None
         super(Upload_Thread_TEST, self).__init__(uri, parent)
     
     def do_upload(self):
@@ -116,6 +111,7 @@ class Upload_Thread_TEST(Upload_Thread):
                 raise self.HarakiriException, "Get me out of here"
         
         self.finished = True
+        self.result = ("OK", "fubar")
         gobject.idle_add(self.parent.upload_callback, self)
         
         for i in xrange(51):
@@ -283,8 +279,15 @@ class Upload_GUI(object):
             cell_renderer.set_property('text', "%s: %i of %i bytes (%3.f%%)" % 
                 (upload.file_name, upload.bytes_done, upload.size, upload.percent_done))
         else:
-            cell_renderer.set_property('text', "%s: %i bytes uploaded" % 
-                (upload.file_name, upload.bytes_done))
+            if upload.result is not None:
+                if upload.result[0] == "OK": 
+                    additional_info = ", upload OK: %s" % upload.result[1]
+                else:
+                    additional_info = ", upload error: %s" % repr(upload.result)
+            else:
+                additional_info = ""
+            cell_renderer.set_property('text', "%s: %i bytes uploaded%s" % 
+                (upload.file_name, upload.bytes_done, additional_info))
     
     def upload_callback_progress(self, column, cell_renderer, tree_model, iter):
         "Called from the tree view when something in the tree model/store changes"

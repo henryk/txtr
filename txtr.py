@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 
-## Note: The following is a backport of the essential parts of the httplib in Python 2.6
+## Note: The following is a backport (read: copy) of the essential parts of the httplib module in Python 2.6
 class _HTTPConnectionWithFileUpload(httplib.HTTPConnection):
     def send(self, str):
         """Send `str' to the server."""
@@ -325,7 +325,9 @@ class txtr(object):
         if list_id is not None:
             WSListMgmt.addDocumentsToList(self.token, list_id, documents, append_position)
     
-    def delivery_document_stream(self, document_id, version=None, format=None):
+    def delivery_download_document_stream(self, document_id, version=None, format=None):
+        """Returns a file-like object to read a downloaded document from.
+        Note: Remember to close() the returned object when done."""
         url = self.DELIVERY_BASE_URL + document_id
         url = url + "?token=" + urllib.quote(self.token)
         if version is not None:
@@ -336,7 +338,9 @@ class txtr(object):
         fp = urllib.urlopen(url)
         return fp
     
-    def delivery_upload_stream(self, fp, file_name, document_id=None):
+    def delivery_upload_document_file(self, fp, file_name, document_id=None):
+        """Upload a document from a file-like object (fp).
+        Returns a tuple (status, new document-id). Status should be "OK"."""
         url = self.DELIVERY_BASE_URL
         if document_id is not None:
             url = url + document_id + "/upload/version"
@@ -351,8 +355,20 @@ class txtr(object):
         
         connection = _HTTP_Connection_Class(parsed_url.netloc)
         r = connection.request("POST", parsed_url.path + "?" + parsed_url.query, body=fp)
+        fp.close()
         
-        return connection
+        response = connection.getresponse()
+        response_body = response.read()
+        connection.close()
+        
+        if response.status != 200:
+            return ("HTTP error", response, response_body)
+        else:
+            result = response_body.split()
+            if result[0].strip().upper() == "OK":
+                return ("OK", result[1].strip())
+            else:
+                return ("reaktor error", response_body)
 
     def get_lists(self, username=None):
         return WSListMgmt.getListsForUser(self.token, username)
