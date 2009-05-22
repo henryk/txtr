@@ -240,8 +240,15 @@ class _WSUserMgmt(_JSONBASE):
     }
 WSUserMgmt = _WSUserMgmt(_COOKIE)
 
+ATTRIBUTES = {
+    "title":  "65534960-94f7-4cb8-b473-d2ce34740f44",
+    "author": "20514d7d-7591-49a4-a62d-f5c02a8f5edd",
+}
+
 class txtr(object):
     DELIVERY_BASE_URL = "http://txtr.com/delivery/document/"
+    IMAGE_BASE_URL = "http://txtr.com/delivery/img"
+    DOCUMENT_BASE_URL = "http://txtr.com/text/"
     
     def __init__(self, username=None, password=None, passhash=None, auth_from=None):
         self.user = None
@@ -337,6 +344,19 @@ class txtr(object):
         
         fp = urllib.urlopen(url)
         return fp
+    
+    def delivery_download_image(self, document_id, size=None):
+        url = self.IMAGE_BASE_URL + "?token=" + urllib.quote(self.token)
+        url = url + "&type=DOCUMENTIMAGE"
+        url = url + "&documentID=" + document_id
+        if size is not None:
+            url = url + "&size=" + urllib.quote(size)
+        
+        fp = urllib.urlopen(url)
+        data = fp.read()
+        fp.close()
+        
+        return data
     
     def delivery_upload_document_file(self, fp, file_name, document_id=None, append_list=None):
         """Upload a document from a file-like object (fp).

@@ -94,11 +94,6 @@ class Upload_Thread_FILE(Upload_Thread):
         self.result = result
         self.finished = True
         gobject.idle_add(self.parent.upload_callback, self)
-        
-        for i in xrange(51):
-            time.sleep(0.1)
-            gobject.idle_add(self.parent.upload_callback, self)
-            if self.harakiri: break
     
     def abort(self):
         self.aborted = True
@@ -133,11 +128,6 @@ class Upload_Thread_TEST(Upload_Thread):
         self.finished = True
         self.result = ("OK", "fubar")
         gobject.idle_add(self.parent.upload_callback, self)
-        
-        for i in xrange(51):
-            time.sleep(0.1)
-            gobject.idle_add(self.parent.upload_callback, self)
-            if self.harakiri: break
 
 class Document_Widget(gtk.Table, object):
     @classmethod
@@ -164,13 +154,14 @@ class Document_Widget(gtk.Table, object):
         r.upload_callback(thread)
         return r
     
+    @classmethod
+    def new_from_document_id(cls, parent, document_id):
+        return cls(parent, document_id=document_id)
+    
     def __init__(self, parent, document_id = None, upload_thread = None, list_name = None):
         if (document_id is None and upload_thread is None) or \
             (document_id is not None and upload_thread is not None):
                 raise TypeError, "Need EITHER document_id OR upload_thread argument"
-        
-        if document_id is not None:
-            raise NotImplementedError, "Widget from document not implemented yet"
         
         self._mode = None
         self._parent = parent
@@ -180,20 +171,30 @@ class Document_Widget(gtk.Table, object):
         self._icon = gtk.image_new_from_stock("gtk-file", gtk.ICON_SIZE_DIALOG)
         self._buttonvbox = gtk.VBox()
         
+        self._icon.set_property("xpad", 12)
+        self._icon.set_property("ypad", 12)
+        
         self.attach(self._icon, 0, 1, 0, 3, gtk.FILL, gtk.FILL)
         self.attach(self._buttonvbox, 2, 3, 0, 3, xoptions=gtk.FILL, yoptions=0)
-        
         
         if upload_thread is not None:
             self._upload_thread = upload_thread
             self._list_name = list_name
             
-            self._init_upload_mode()
+            self._set_mode("upload")
             
             upload_thread.parent = self
-
+        
+        elif document_id is not None:
+            self._document_id = document_id
+            
+            self._set_mode("document")
+            
+            self._load_document_data()
     
     def _init_upload_mode(self):
+        if self._mode is not None: raise RuntimeError, "Can't init upload mode when different mode already active"
+        
         self._label1 = gtk.Label()
         self._progress_bar = gtk.ProgressBar()
         
@@ -206,13 +207,95 @@ class Document_Widget(gtk.Table, object):
         
         if hasattr(self._upload_thread, "abort"):
             self._stop_button = gtk.Button(label="Stop")
+            
             self._buttonvbox.pack_start(self._stop_button)
             self._stop_button.connect("clicked", self._on_stop_button_clicked)
+        
+        self._mode = "upload"
+    
+    def _deinit_upload_mode(self):
+        if self._mode != "upload": raise RuntimeError, "Can't deinit upload mode when not active"
+        
+        self._label1.destroy()
+        self._progress_bar.destroy()
+        
+        del self._label1
+        del self._progress_bar
+        
+        if hasattr(self._upload_thread, "abort"):
+            self._stop_button.destroy()
+            del self._stop_button
+        
+        self._mode = None
+    
+    def _init_document_mode(self):
+        if self._mode is not None: raise RuntimeError, "Can't init document mode when different mode already active"
+        self._title_input = gtk.Entry()
+        self._author_input = gtk.Entry()
+        self._remove_button = gtk.Button(label="Remove")
+        
+        self._by_label = gtk.Label(str="by ")
+        self._online_label = gtk.Label(str="Online: ")
+        self._url_button = gtk.LinkButton(uri=self.txtr.DOCUMENT_BASE_URL + self._document_id)
+        
+        self._author_hbox = gtk.HBox()
+        self._url_hbox = gtk.HBox()
+        self._middle_vbox = gtk.VBox()
+        
+        self._url_button.set_property("xalign", 0)
+        self._remove_button.connect("clicked", self._on_remove_button_clicked)
+        
+        self._author_hbox.pack_start(self._by_label, False)
+        self._author_hbox.pack_start(self._author_input)
+        
+        self._url_hbox.pack_start(self._online_label, False)
+        self._url_hbox.pack_start(self._url_button, True)
+        
+        self._buttonvbox.pack_start(self._remove_button)
+        
+        self._middle_vbox.pack_start(self._title_input)
+        self._middle_vbox.pack_start(self._author_hbox)
+        self._middle_vbox.pack_start(self._url_hbox)
+        
+        for t in self._title_input, self._author_input:
+            t.set_has_frame(False)
+            t.set_inner_border(None)
+        
+        if hasattr(self, "_file_name"):
+            self._local_label = gtk.Label(str="Local: %s" % self._file_name)
+            self._url_hbox.pack_start(self._local_label, False)
+        
+        self.attach(self._middle_vbox, 1, 2, 0, 3, yoptions=gtk.EXPAND)
+        
+        self._mode = "document"
+    
+    def _deinit_document_mode(self):
+        if self._mode != "document": raise RuntimeError, "Can't deinit document mode when not active"
+        
+        if hasattr(self, "_file_name"):
+            self._local_label.destroy()
+            del self._local_label
+        
+        self._middle_vbox.destroy()
+        self._remove_button.destroy()
+        
+        for i in  "_title_input", "_author_input", "_remove_button", "_by_label", \
+            "_online_label", "_url_button", "_author_hbox", "_url_hbox", "_middle_vbox":
+                delattr(self, i)
+        
+        self._mode = None
+    
+    def _set_mode(self, new_mode):
+        if self._mode is not None:
+            getattr(self, "_deinit_%s_mode" % self._mode)()
+        getattr(self, "_init_%s_mode" % new_mode)()
     
     def start(self):
-        self._upload_thread.start()
+        if self._mode == "upload":
+            self._upload_thread.start()
     def stop(self):
-        self._upload_thread.schedule_stop()
+        if self._mode == "upload":
+            self._upload_thread.schedule_stop()
 
     def upload_callback(self, upload):
         "Called from Upload_Thread_* objects to notify about a change in state, update GUI"
@@ -240,20 +323,36 @@ class Document_Widget(gtk.Table, object):
             self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
         else:
             self._progress_bar.set_text("finished")
-            
-            upload._i = getattr(upload, "_i", 0) + 1
-            if upload._i > 50:
-                self._progress_bar.set_fraction(1)
-                self._progress_bar.set_text("finished")
-            else:
-                self._progress_bar.pulse()
-                self._progress_bar.set_text("processing")
+            self._progress_bar.set_fraction(1)
+        
+        ## Switch modes
+        if upload.finished and upload.result[0] == "OK":
+            self._file_name = upload.file_name
+            self._document_id = upload.result[1]
+            self._set_mode("document")
+            self.show_all()
+            self._load_document_data()
+    
+    def _load_document_data(self):
+        self._document = txtr.WSDocMgmt.getDocument(self._parent.txtr.token, self._document_id)
+        self._document_image = self._parent.txtr.delivery_download_image(self._document_id, size="SMALL")
+        
+        self._title_input.set_text(self._document["attributes"][txtr.ATTRIBUTES["title"]])
+        self._author_input.set_text(self._document["attributes"][txtr.ATTRIBUTES["author"]])
+        
+        l = gtk.gdk.PixbufLoader()
+        l.write(self._document_image)
+        l.close()
+        self._icon.set_from_pixbuf(l.get_pixbuf())
     
     def _on_stop_button_clicked(self, button):
         if hasattr(self._upload_thread, "abort"):
             self._upload_thread.abort()
             self._stop_button.set_property("sensitive", False)
-    
+
+    def _on_remove_button_clicked(self, button):
+        print "Hasta la vista, baby"
+
     txtr = property(lambda self: self._parent.txtr)
 
 
@@ -380,6 +479,20 @@ class Upload_GUI(object):
             document.show_all()
             document.start()
     
+    def add_document(self, document_id):
+        document = None
+        try:
+            document = Document_Widget.new_from_document_id(self, document_id)
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception, e:
+            print e
+        
+        if document is not None:
+            self.documents.append(document)
+            self.documents_vbox.pack_start(document, expand=False)
+            document.show_all()
+    
     def do_shutdown(self):
         for document in self.documents:
             document.stop()
@@ -425,6 +538,6 @@ if __name__ == "__main__":
         gobject.idle_add(lambda: g.add_upload("test://1") and None)
         gobject.timeout_add(5000, lambda: g.add_upload("test://2") and None )
         gobject.timeout_add(6000, lambda: g.add_upload("test://2") and None )
-        gobject.timeout_add(7000, lambda: g.add_upload("test://2") and None )
-        gobject.timeout_add(8000, lambda: g.add_upload("test://2") and None )
+    if True:
+        gobject.idle_add(lambda: g.add_document("ah8mg9") and None)
     gtk.main()
