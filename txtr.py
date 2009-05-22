@@ -359,6 +359,12 @@ class txtr(object):
         r = connection.request("POST", parsed_url.path + "?" + parsed_url.query, body=fp)
         fp.close()
         
+        if fp.aborted:
+            ## Warning: Kludge! The upload has been externally aborted, the HTTP connection is currently
+            ##     in a bad state: The server was expecting content-length bytes, but we won't send anymore
+            ##     Instead we'll half-close the TCP connection to signal an end to the server
+            connection.sock.shutdown(socket.SHUT_WR)
+        
         response = connection.getresponse()
         response_body = response.read()
         connection.close()

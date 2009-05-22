@@ -17,11 +17,16 @@ class _file_with_read_callback:
         self.f = f
         self.cb = cb
         self.size = os.fstat(self.fileno()).st_size
+        self.aborted = False
     
     def read(self, blocksize):
         data = self.f.read(blocksize)
         self.cb(len(data))
-        return data
+        
+        if self.aborted:
+           return None 
+        else:
+            return data
     
     def fileno(self):  return self.f.fileno()
     def close(self):   return self.f.close()
@@ -57,6 +62,7 @@ class Upload_Thread_FILE(Upload_Thread):
         self.size = os.fstat(self.fd.fileno()).st_size
         self.bytes_done = 0
         self.percent_done = 0
+        self.aborted = False
         self.finished = False
         self.result = None
         
@@ -68,11 +74,20 @@ class Upload_Thread_FILE(Upload_Thread):
             self.percent_done = 100.0 * float(self.bytes_done) / float(self.size)
             gobject.idle_add(self.parent.upload_callback, self)
             
+            if self.aborted:
+                ## Warning: Kludge!
+                ## Set a flag to make _file_with_read_callback not return anything from read(),
+                ##    this will cause HTTPConnection to end sending data and return from request().
+                ##    txtr.delivery_upload_document_file() will then see the flag on fp_with_callback
+                ##    and partially close the TCP connection, which should signal an abort to the server
+                self.fp_with_callback.aborted = True
+            
             if self.harakiri:
                 raise self.HarakiriException, "Get me out of here"
         
+        self.fp_with_callback = _file_with_read_callback(self.fd, update_gui)
         result = self.parent.txtr.delivery_upload_document_file(
-            fp = _file_with_read_callback(self.fd, update_gui),
+            fp = self.fp_with_callback,
             file_name = self.file_name,
             append_list = self.append_list)
         
@@ -84,6 +99,9 @@ class Upload_Thread_FILE(Upload_Thread):
             time.sleep(0.1)
             gobject.idle_add(self.parent.upload_callback, self)
             if self.harakiri: break
+    
+    def abort(self):
+        self.aborted = True
 
 class Upload_Thread_HTTP(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
@@ -154,14 +172,28 @@ class Document_Widget(gtk.Table, object):
         if document_id is not None:
             raise NotImplementedError, "Widget from document not implemented yet"
         
+        self._mode = None
         self._parent = parent
-        self._upload_thread = upload_thread
-        self._list_name = list_name
-        upload_thread.parent = self
         
         gtk.Table.__init__(self, rows=3, columns=3)
         
         self._icon = gtk.image_new_from_stock("gtk-file", gtk.ICON_SIZE_DIALOG)
+        self._buttonvbox = gtk.VBox()
+        
+        self.attach(self._icon, 0, 1, 0, 3, gtk.FILL, gtk.FILL)
+        self.attach(self._buttonvbox, 2, 3, 0, 3, xoptions=gtk.FILL, yoptions=0)
+        
+        
+        if upload_thread is not None:
+            self._upload_thread = upload_thread
+            self._list_name = list_name
+            
+            self._init_upload_mode()
+            
+            upload_thread.parent = self
+
+    
+    def _init_upload_mode(self):
         self._label1 = gtk.Label()
         self._progress_bar = gtk.ProgressBar()
         
@@ -169,9 +201,13 @@ class Document_Widget(gtk.Table, object):
         self._label1.set_property("xalign", 0)
         self._progress_bar.set_pulse_step(0.1)
         
-        self.attach(self._icon, 0, 1, 0, 3, gtk.FILL, gtk.FILL)
         self.attach(self._label1, 1, 2, 0, 1)
         self.attach(self._progress_bar, 1, 2, 1, 2, xpadding=12)
+        
+        if hasattr(self._upload_thread, "abort"):
+            self._stop_button = gtk.Button(label="Stop")
+            self._buttonvbox.pack_start(self._stop_button)
+            self._stop_button.connect("clicked", self._on_stop_button_clicked)
     
     def start(self):
         self._upload_thread.start()
@@ -212,6 +248,11 @@ class Document_Widget(gtk.Table, object):
             else:
                 self._progress_bar.pulse()
                 self._progress_bar.set_text("processing")
+    
+    def _on_stop_button_clicked(self, button):
+        if hasattr(self._upload_thread, "abort"):
+            self._upload_thread.abort()
+            self._stop_button.set_property("sensitive", False)
     
     txtr = property(lambda self: self._parent.txtr)
 
