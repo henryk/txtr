@@ -540,7 +540,6 @@ class Upload_GUI(object):
         if result == gtk.RESPONSE_ACCEPT:
             self.login_data.save()
             if self.txtr_dirty:
-                print "txtr is dirty"
                 self.do_logout()
                 self.do_login()
         else:
@@ -614,8 +613,14 @@ class Upload_GUI(object):
         self.txtr_dirty = False
         if not DRY_RUN:
             self.status("login", "Login to txtr.com API ...")
-            self.txtr.login()
+            result = self.txtr.login()
             self.status("login")
+            
+            if not result:
+                self.status(message="Login not ok, please check username and password")
+                del self.txtr
+                return
+            
             self.status(message="Login ok")
         
         ## Retrieve lists and set up drop-down menu
@@ -646,7 +651,6 @@ class Upload_GUI(object):
         del self.txtr
     
     def login_data_changed(self):
-        print "Make dirty"
         self.txtr_dirty = True
     
     def do_shutdown(self):

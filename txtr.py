@@ -286,6 +286,11 @@ class txtr(object):
         
         self.loginresponse = WSAuth.authenticateUserByName(self.user, self.passh, False)
         self.token = self.loginresponse["token"]
+        
+        if self.loginresponse["resultCode"]["name"] == "FAILURE":
+            return False
+        elif self.loginresponse["resultCode"]["name"] == "SUCCESS":
+            return True
     
     def logout(self):
         if self.token is not None:
