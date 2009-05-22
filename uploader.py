@@ -5,9 +5,10 @@ try:
     pygtk.require('2.0')
     import gtk,gtk.glade
     import gobject
+    import gconf
 except:
     HAVE_GTK = False
-    print >>sys.stderr, "The GUI needs python-gtk (aka pygtk) version 2.12 or higher, and python-gobject, please install"
+    print >>sys.stderr, "The GUI needs python-gtk (aka pygtk) version 2.12 or higher, python-gconf and python-gobject, please install"
     raise
 else:
     HAVE_GTK = True
@@ -195,20 +196,22 @@ class Document_Widget(gtk.Table, object):
     def _init_upload_mode(self):
         if self._mode is not None: raise RuntimeError, "Can't init upload mode when different mode already active"
         
-        self._label1 = gtk.Label()
+        self._progress_label = gtk.Label()
         self._progress_bar = gtk.ProgressBar()
         
-        self._label1.set_property("xpad", 12)
-        self._label1.set_property("xalign", 0)
+        self._progress_label.set_property("xpad", 12)
+        self._progress_label.set_property("xalign", 0)
         self._progress_bar.set_pulse_step(0.1)
         
-        self.attach(self._label1, 1, 2, 0, 1)
-        self.attach(self._progress_bar, 1, 2, 1, 2, xpadding=12)
+        self.attach(self._progress_label, 1, 2, 0, 1, yoptions=0)
+        self.attach(self._progress_bar, 1, 2, 1, 2, xpadding=12, yoptions=0)
         
         if hasattr(self._upload_thread, "abort"):
-            self._stop_button = gtk.Button(label="Stop")
+            self._stop_button = gtk.Button()
+            self._stop_image = gtk.image_new_from_stock(gtk.STOCK_STOP, gtk.ICON_SIZE_MENU)
             
             self._buttonvbox.pack_start(self._stop_button)
+            self._stop_button.set_image(self._stop_image)
             self._stop_button.connect("clicked", self._on_stop_button_clicked)
         
         self._mode = "upload"
@@ -216,15 +219,16 @@ class Document_Widget(gtk.Table, object):
     def _deinit_upload_mode(self):
         if self._mode != "upload": raise RuntimeError, "Can't deinit upload mode when not active"
         
-        self._label1.destroy()
+        self._progress_label.destroy()
         self._progress_bar.destroy()
         
-        del self._label1
+        del self._progress_label
         del self._progress_bar
         
         if hasattr(self._upload_thread, "abort"):
             self._stop_button.destroy()
             del self._stop_button
+            del self._stop_image
         
         self._mode = None
     
@@ -232,7 +236,8 @@ class Document_Widget(gtk.Table, object):
         if self._mode is not None: raise RuntimeError, "Can't init document mode when different mode already active"
         self._title_input = gtk.Entry()
         self._author_input = gtk.Entry()
-        self._remove_button = gtk.Button(label="Remove")
+        self._remove_button = gtk.Button()
+        self._remove_image = gtk.image_new_from_stock(gtk.STOCK_REMOVE, gtk.ICON_SIZE_MENU)
         
         self._by_label = gtk.Label(str="by ")
         self._online_label = gtk.Label(str="Online: ")
@@ -240,9 +245,18 @@ class Document_Widget(gtk.Table, object):
         
         self._author_hbox = gtk.HBox()
         self._url_hbox = gtk.HBox()
-        self._middle_vbox = gtk.VBox()
+        self._middle_vbox = gtk.VBox(spacing=1)
         
+        self._title_input.connect("focus-out-event", 
+            self._on_document_attribute_focus_out_event, txtr.ATTRIBUTES["title"])
+        self._author_input.connect("focus-out-event", 
+            self._on_document_attribute_focus_out_event, txtr.ATTRIBUTES["author"])
+        self._title_input.connect("activate", 
+            self._on_document_attribute_activate, txtr.ATTRIBUTES["title"])
+        self._author_input.connect("activate", 
+            self._on_document_attribute_activate, txtr.ATTRIBUTES["author"])
         self._url_button.set_property("xalign", 0)
+        self._remove_button.set_image(self._remove_image)
         self._remove_button.connect("clicked", self._on_remove_button_clicked)
         
         self._author_hbox.pack_start(self._by_label, False)
@@ -279,7 +293,7 @@ class Document_Widget(gtk.Table, object):
         self._middle_vbox.destroy()
         self._remove_button.destroy()
         
-        for i in  "_title_input", "_author_input", "_remove_button", "_by_label", \
+        for i in  "_title_input", "_author_input", "_remove_button", "_remove_image", "_by_label", \
             "_online_label", "_url_button", "_author_hbox", "_url_hbox", "_middle_vbox":
                 delattr(self, i)
         
@@ -302,7 +316,7 @@ class Document_Widget(gtk.Table, object):
         
         ## Update the text field
         if not upload.finished:
-            self._label1.set_text("%s: %i of %i bytes (%3.f%%)" % 
+            self._progress_label.set_text("%s: %i of %i bytes (%3.f%%)" % 
                 (upload.file_name, upload.bytes_done, upload.size, upload.percent_done))
         else:
             if upload.result is not None:
@@ -314,7 +328,7 @@ class Document_Widget(gtk.Table, object):
                     pprint.pprint(upload.result)
             else:
                 additional_info = ""
-            self._label1.set_text("%s: %i bytes uploaded%s" % 
+            self._progress_label.set_text("%s: %i bytes uploaded%s" % 
                 (upload.file_name, upload.bytes_done, additional_info))
         
         ## Update the progress bar
@@ -345,13 +359,27 @@ class Document_Widget(gtk.Table, object):
         l.close()
         self._icon.set_from_pixbuf(l.get_pixbuf())
     
+    def _change_document_attribute(self, attribute, value):
+        print "Winds of change: %s=%s" % (attribute, value)
+        self._document["attributes"][attribute] = value
+    
     def _on_stop_button_clicked(self, button):
         if hasattr(self._upload_thread, "abort"):
             self._upload_thread.abort()
             self._stop_button.set_property("sensitive", False)
 
     def _on_remove_button_clicked(self, button):
-        print "Hasta la vista, baby"
+        self.destroy()
+    
+    def _on_document_attribute_focus_out_event(self, entry, event, attribute):
+        value = entry.get_text()
+        if self._document["attributes"][attribute] != value:
+            self._change_document_attribute(attribute, value)
+
+    def _on_document_attribute_activate(self, entry, attribute):
+        value = entry.get_text()
+        if self._document["attributes"][attribute] != value:
+            self._change_document_attribute(attribute, value)
 
     txtr = property(lambda self: self._parent.txtr)
 
@@ -361,12 +389,71 @@ DRY_RUN = False
 class Upload_GUI(object):
     _DRAG_INFO_URI = 1
     _DRAG_INFO_TEXT = 2
+    GCONF_DIRECTORY = "/apps/txtr"
+    
+    class login_data_model_view(object):
+        def __init__(self, parent, gconf_client, username_entry, password_entry):
+            self.parent = parent
+            self.gconf_client = gconf_client
+            self.username_entry = username_entry
+            self.password_entry = password_entry
+            
+            self.gconf_client.add_dir(self.parent.GCONF_DIRECTORY, gconf.CLIENT_PRELOAD_ONELEVEL)
+            self.gconf_client.notify_add(self.parent.GCONF_DIRECTORY + "/username", self.gconf_changed_username)
+            self.gconf_client.notify_add(self.parent.GCONF_DIRECTORY + "/password", self.gconf_changed_password)
+            
+            self.load()
+        
+        def gconf_changed_username(self, client, connection_id, value, *args):
+            old = self.username_entry.get_text()
+            new = value.value.to_string()
+            if new != old:
+                self.username_entry.set_text(new)
+                self.parent.login_data_changed()
+        
+        def gconf_changed_password(self, client, connection_id, value, *args):
+            old = self.password_entry.get_text()
+            new = value.value.to_string()
+            if new != old:
+                self.password_entry.set_text(new)
+                self.parent.login_data_changed()
+        
+        def save(self):
+            changed = False
+            u = self.username_entry.get_text()
+            p = self.password_entry.get_text()
+            if self.username != u:
+                self.gconf_client.set_string(self.parent.GCONF_DIRECTORY + "/username", u)
+                self.username = u
+                changed = True
+            if self.password != p:
+                self.gconf_client.set_string(self.parent.GCONF_DIRECTORY + "/password", p)
+                self.password = p
+                changed = True
+            if changed:
+                self.parent.login_data_changed()
+        
+        def load(self):
+            self.username = self.gconf_client.get_string(self.parent.GCONF_DIRECTORY + "/username")
+            self.password = self.gconf_client.get_string(self.parent.GCONF_DIRECTORY + "/password")
+            
+            if self.username:
+                self.username_entry.set_text(self.username)
+            if self.password:
+                self.password_entry.set_text(self.password)
+
+    
     def __init__(self):
         self.main_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_main")
         self.main_window = self.main_window_xml.get_widget("uploader_main")
         
         self.about_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_about")
         self.about_window = self.about_window_xml.get_widget("uploader_about")
+        self.about_window.set_transient_for(self.main_window)
+        
+        self.preferences_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_preferences")
+        self.preferences_window = self.preferences_window_xml.get_widget("uploader_preferences")
+        self.preferences_window.set_transient_for(self.main_window)
         
         for i in "statusbar", "target", "documents_vbox":
             setattr(self, i, self.main_window_xml.get_widget(i))
@@ -382,27 +469,6 @@ class Upload_GUI(object):
         
         self.documents = []
         
-        ## Set up API and log in
-        self.txtr = txtr.txtr(auth_from="auth.txt")
-        if not DRY_RUN:
-            self.status("login", "Login to txtr.com API ...")
-            self.txtr.login()
-            self.status("login")
-            self.status(message="Login ok")
-        
-        ## Retrieve lists and set up drop-down menu
-        self.status("lists", "Retrieving user's lists ...")
-        self.available_lists = []
-        if not DRY_RUN:
-            lists = self.txtr.get_lists()
-        else:
-            lists = [{"ID":"foo", "name":"Foo"}]
-        for l in lists:
-            self.available_lists.append( (l["ID"], l["name"]) )
-            self.target.append_text(l["name"])
-        self.target.set_active(0)
-        self.status("lists")
-        
         ## Prepare file chooser filters
         patterns = (
             ("Adobe PDF files", "*.[pP][dD][fF]"),
@@ -417,6 +483,18 @@ class Upload_GUI(object):
             f.set_name(pattern[0])
             for p in pattern[1:]: f.add_pattern(p)
             self.uploader_chooser_filters.append(f)
+        
+        ## Prepare gconf, read config. Login if username/password available, otherwise display preferences
+        self.gconf_client = gconf.client_get_default()
+        self.login_data = self.login_data_model_view(self, self.gconf_client,
+            self.preferences_window_xml.get_widget("username_input"),
+            self.preferences_window_xml.get_widget("password_input"))
+        
+        self.txtr_dirty = False
+        if not (self.login_data.username and self.login_data.password):
+            self.on_preferences_activate(None)
+        
+        self.do_login()
     
     ## Autoconnected signal handlers ##
     def on_uploader_main_destroy(self, widget):
@@ -456,9 +534,33 @@ class Upload_GUI(object):
         result = self.about_window.run()
         self.about_window.hide()
     
+    def on_preferences_activate(self, menuitem):
+        result = self.preferences_window.run()
+        self.preferences_window.hide()
+        if result == gtk.RESPONSE_ACCEPT:
+            self.login_data.save()
+            if self.txtr_dirty:
+                print "txtr is dirty"
+                self.do_logout()
+                self.do_login()
+        else:
+            self.login_data.load()
+        self.txtr_dirty = False
+    
     ## Indirectly called/utility methods
+    def check_txtr(self):
+        "Returns true when login to txtr was successful"
+        if not hasattr(self, "txtr"): 
+            self.status("error", "Can't upload file without login data", pump_events=False)
+            gobject.timeout_add(5000, lambda: self.status("error", pump_events=False) or False)
+            return False
+        return True
+    
     def add_upload(self, uri):
         "Add and start an upload"
+        
+        if not self.check_txtr(): return
+        
         target_list = self.target.get_active()
         if target_list == -1:
             target = None
@@ -475,11 +577,14 @@ class Upload_GUI(object):
         
         if document is not None:
             self.documents.append(document)
+            document.connect("destroy", self.remove_document)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
             document.start()
     
     def add_document(self, document_id):
+        if not self.check_txtr(): return
+        
         document = None
         try:
             document = Document_Widget.new_from_document_id(self, document_id)
@@ -490,21 +595,70 @@ class Upload_GUI(object):
         
         if document is not None:
             self.documents.append(document)
+            document.connect("destroy", self.remove_document)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
     
-    def do_shutdown(self):
-        for document in self.documents:
-            document.stop()
+    def remove_document(self, document):
+        self.documents.remove(document)
+    
+    def do_login(self):
+        ## Set up API and log in
+        if hasattr(self, "txtr"): return
+        
+        if not (self.login_data.username and self.login_data.password):
+            self.status(message="Please set login data in preferences")
+            return
+        
+        self.txtr = txtr.txtr(username=self.login_data.username, password=self.login_data.password)
+        self.txtr_dirty = False
+        if not DRY_RUN:
+            self.status("login", "Login to txtr.com API ...")
+            self.txtr.login()
+            self.status("login")
+            self.status(message="Login ok")
+        
+        ## Retrieve lists and set up drop-down menu
+        self.status("lists", "Retrieving user's lists ...")
+        self.available_lists = []
+        if not DRY_RUN:
+            lists = self.txtr.get_lists()
+        else:
+            lists = [{"ID":"foo", "name":"Foo"}]
+        for l in lists:
+            self.available_lists.append( (l["ID"], l["name"]) )
+            self.target.append_text(l["name"])
+        self.target.set_active(0)
+        self.status("lists")
+    
+    def do_logout(self):
+        if not hasattr(self, "txtr"): return
         
         self.status("login", "Logging out ...")
         self.txtr.logout()
         self.status("login")
         self.status(message="Logout ok")
         
+        for i in range(len(self.available_lists)):
+            self.target.remove_text(0)
+        self.available_lists = []
+        
+        del self.txtr
+    
+    def login_data_changed(self):
+        print "Make dirty"
+        self.txtr_dirty = True
+    
+    def do_shutdown(self):
+        for document in self.documents:
+            document.stop()
+        
+        self.do_logout()
+        
         self.main_window.destroy()
     
     def fast_shutdown(self): # Log out in any case upon termination of the main loop
+        if not hasattr(self, "txtr"): return
         self.txtr.logout()
         return 0
     
