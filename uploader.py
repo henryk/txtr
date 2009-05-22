@@ -696,6 +696,6 @@ if __name__ == "__main__":
         gobject.idle_add(lambda: g.add_upload("test://1") and None)
         gobject.timeout_add(5000, lambda: g.add_upload("test://2") and None )
         gobject.timeout_add(6000, lambda: g.add_upload("test://2") and None )
-    if True:
+    if False:
         gobject.idle_add(lambda: g.add_document("ah8mg9") and None)
     gtk.main()

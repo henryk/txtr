@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat May 23 00:16:50 2009 -->
+<!--Generated with glade3 3.4.5 on Sat May 23 01:27:46 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>
@@ -401,7 +401,7 @@
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
     <property name="program_name">txtr Uploader</property>
-    <property name="version">0.0</property>
+    <property name="version">0.5</property>
     <property name="copyright" translatable="yes">(c) Henryk Plötz 2009</property>
     <property name="license" translatable="yes">GPL</property>
     <property name="authors">Henryk Plötz</property>
