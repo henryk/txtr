@@ -29,9 +29,10 @@ class _file_with_read_callback:
         else:
             return data
     
-    def fileno(self):  return self.f.fileno()
-    def close(self):   return self.f.close()
-    def __len__(self): return self.size
+    def fileno(self):      return self.f.fileno()
+    def close(self):       return self.f.close()
+    def __len__(self):     return self.size
+    def __nonzero__(self): return 1
     
 class Upload_Thread(object):
     def __init__(self, uri, parent, append_list=None):
@@ -641,6 +642,7 @@ class Upload_GUI(object):
         self.txtr = txtr.txtr(username=self.login_data.username, password=self.login_data.password)
         self.txtr_dirty = False
         if not DRY_RUN:
+            self.status(message=None, pump_events=False) # Clear default context
             self.status("login", "Login to txtr.com API ...")
             result = self.txtr.login()
             self.status("login")
