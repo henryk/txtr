@@ -368,6 +368,7 @@ class Document_Widget(gtk.Table, object):
         try:
             txtr.WSDocMgmt.changeDocumentAttributes(self._parent.txtr.token, [self._document_id],
                 {attribute: value})
+            self._parent.status("change_attribute")
             self._parent.status("change_attribute", "Reloading document data ...")
             self._load_document_data()
             self._parent.status("change_attribute")
@@ -375,6 +376,8 @@ class Document_Widget(gtk.Table, object):
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
+            self._parent.status("change_attribute")
+            self._parent.status(message="Error while trying to change attribute")
             print e
     
     def _on_stop_button_clicked(self, button):
