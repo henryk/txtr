@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat May 23 01:27:46 2009 -->
+<!--Generated with glade3 3.4.5 on Sat May 23 02:53:27 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>
-    <property name="default_width">500</property>
-    <property name="default_height">300</property>
+    <property name="default_width">600</property>
+    <property name="default_height">700</property>
     <property name="icon">uploader_logo.png</property>
     <signal name="destroy" handler="on_uploader_main_destroy"/>
     <signal name="delete_event" handler="on_uploader_main_delete_event"/>
@@ -138,7 +138,7 @@
             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
             <child>
-              <widget class="GtkViewport" id="viewport1">
+              <widget class="GtkViewport" id="documents_viewport">
                 <property name="visible">True</property>
                 <property name="resize_mode">GTK_RESIZE_QUEUE</property>
                 <child>

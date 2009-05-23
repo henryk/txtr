@@ -316,8 +316,7 @@ class Document_Widget(gtk.Table, object):
         
         ## Update the text field
         if not upload.finished:
-            self._progress_label.set_text("%s: %i of %i bytes (%3.f%%)" % 
-                (upload.file_name, upload.bytes_done, upload.size, upload.percent_done))
+            self._progress_label.set_text("%s" % upload.file_name)
         else:
             if upload.result is not None:
                 if upload.result[0] == "OK": 
@@ -328,12 +327,13 @@ class Document_Widget(gtk.Table, object):
                     pprint.pprint(upload.result)
             else:
                 additional_info = ""
-            self._progress_label.set_text("%s: %i bytes uploaded%s" % 
-                (upload.file_name, upload.bytes_done, additional_info))
+            self._progress_label.set_text("%s%s" % 
+                (upload.file_name, additional_info))
         
         ## Update the progress bar
         if not upload.finished:
-            self._progress_bar.set_text("")
+            self._progress_bar.set_text("%3.f%%, %i of %i bytes" % 
+                (upload.percent_done, upload.bytes_done, upload.size))
             self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
         else:
             self._progress_bar.set_text("finished")
@@ -455,8 +455,13 @@ class Upload_GUI(object):
         self.preferences_window = self.preferences_window_xml.get_widget("uploader_preferences")
         self.preferences_window.set_transient_for(self.main_window)
         
-        for i in "statusbar", "target", "documents_vbox":
+        for i in "statusbar", "target", "documents_vbox", "documents_viewport":
             setattr(self, i, self.main_window_xml.get_widget(i))
+        
+        self.bg_pixbuf = gtk.gdk.pixbuf_new_from_file("bg_txtrSynchronizer.png")
+        self.idle_image = gtk.image_new_from_pixbuf(self.bg_pixbuf)
+        self.documents_vbox.pack_start(self.idle_image)
+        self.idle_image.show()
         
         self.main_window_xml.signal_autoconnect(self)
         self.main_window.show()
@@ -577,6 +582,7 @@ class Upload_GUI(object):
         if document is not None:
             self.documents.append(document)
             document.connect("destroy", self.remove_document)
+            self.documents_vbox.remove(self.idle_image)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
             document.start()
@@ -595,11 +601,14 @@ class Upload_GUI(object):
         if document is not None:
             self.documents.append(document)
             document.connect("destroy", self.remove_document)
+            self.documents_vbox.remove(self.idle_image)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
     
     def remove_document(self, document):
         self.documents.remove(document)
+        if len(self.documents) == 0:
+            self.documents_vbox.pack_start(self.idle_image)
     
     def do_login(self):
         ## Set up API and log in
