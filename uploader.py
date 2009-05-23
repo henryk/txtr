@@ -396,6 +396,7 @@ class Document_Widget(gtk.Table, object):
         value = entry.get_text()
         if self._document["attributes"][attribute] != value:
             self._change_document_attribute(attribute, value)
+        return False
 
     def _on_document_attribute_activate(self, entry, attribute):
         value = entry.get_text()
