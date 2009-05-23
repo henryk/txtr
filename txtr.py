@@ -240,6 +240,15 @@ class _WSUserMgmt(_JSONBASE):
     }
 WSUserMgmt = _WSUserMgmt(_COOKIE)
 
+class _WSEventBus(_JSONBASE):
+    BASENAME = "WSEventBus"
+    METHODS = {
+        "subscribe": ["token", "eventType", "eventSubType"],
+        "unsubscribe": ["token", "listenerID", "eventType", "eventSubType"],
+        "getEvents": ["token", "eventType", "eventSubType"],
+    }
+WSEventBus = _WSEventBus(_COOKIE)
+
 ATTRIBUTES = {
     "title":  "65534960-94f7-4cb8-b473-d2ce34740f44",
     "author": "20514d7d-7591-49a4-a62d-f5c02a8f5edd",

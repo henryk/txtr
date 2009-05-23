@@ -360,8 +360,18 @@ class Document_Widget(gtk.Table, object):
         self._icon.set_from_pixbuf(l.get_pixbuf())
     
     def _change_document_attribute(self, attribute, value):
-        print "Winds of change: %s=%s" % (attribute, value)
-        self._document["attributes"][attribute] = value
+        self._parent.status("change_attribute", "Changing attribute ...")
+        try:
+            txtr.WSDocMgmt.changeDocumentAttributes(self._parent.txtr.token, [self._document_id],
+                {attribute: value})
+            self._parent.status("change_attribute", "Reloading document data ...")
+            self._load_document_data()
+            self._parent.status("change_attribute")
+            self._parent.status_temporary(message="Attribute changed.")
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except Exception, e:
+            print e
     
     def _on_stop_button_clicked(self, button):
         if hasattr(self._upload_thread, "abort"):
@@ -554,9 +564,8 @@ class Upload_GUI(object):
     ## Indirectly called/utility methods
     def check_txtr(self):
         "Returns true when login to txtr was successful"
-        if not hasattr(self, "txtr"): 
-            self.status("error", "Can't upload file without login data", pump_events=False)
-            gobject.timeout_add(5000, lambda: self.status("error", pump_events=False) or False)
+        if not hasattr(self, "txtr"):
+            self.status_temporary("error", "Can't upload file without login data", timeout=5000)
             return False
         return True
     
@@ -580,9 +589,10 @@ class Upload_GUI(object):
             print e
         
         if document is not None:
+            if len(self.documents) == 0:
+                self.documents_vbox.remove(self.idle_image)
             self.documents.append(document)
             document.connect("destroy", self.remove_document)
-            self.documents_vbox.remove(self.idle_image)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
             document.start()
@@ -691,6 +701,10 @@ class Upload_GUI(object):
         
         if pump_events:
             self.pump_events()
+    
+    def status_temporary(self, context=None, message=None, timeout=5000):
+        self.status(context, message, pump_events=False)
+        gobject.timeout_add(timeout, lambda: self.status(context, message=None, pump_events=False) or False)
     
     def pump_events(self):
         "Process all pending GUI events, e.g. update the GUI."
