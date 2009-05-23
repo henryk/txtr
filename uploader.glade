@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat May 23 02:53:27 2009 -->
+<!--Generated with glade3 3.4.5 on Sat May 23 17:53:22 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>

@@ -322,7 +322,7 @@ class Document_Widget(gtk.Table, object):
                 if upload.result[0] == "OK": 
                     additional_info = ", upload OK: %s" % upload.result[1]
                 else:
-                    additional_info = ", upload error: %s" % repr(upload.result)
+                    additional_info = ", upload error: %s" % upload.result[0]
                     import pprint
                     pprint.pprint(upload.result)
             else:
@@ -339,13 +339,17 @@ class Document_Widget(gtk.Table, object):
             self._progress_bar.set_text("finished")
             self._progress_bar.set_fraction(1)
         
-        ## Switch modes
-        if upload.finished and upload.result[0] == "OK":
-            self._file_name = upload.file_name
-            self._document_id = upload.result[1]
-            self._set_mode("document")
-            self.show_all()
-            self._load_document_data()
+        
+        if upload.finished:
+            if upload.result[0] == "OK":
+                ## Switch modes
+                self._file_name = upload.file_name
+                self._document_id = upload.result[1]
+                self._set_mode("document")
+                self.show_all()
+                self._load_document_data()
+            else:
+                self._icon.set_from_stock("gtk-dialog-error", gtk.ICON_SIZE_DIALOG)
     
     def _load_document_data(self):
         self._document = txtr.WSDocMgmt.getDocument(self._parent.txtr.token, self._document_id)
@@ -374,7 +378,10 @@ class Document_Widget(gtk.Table, object):
             print e
     
     def _on_stop_button_clicked(self, button):
-        if hasattr(self._upload_thread, "abort"):
+        if self._upload_thread.finished and self._upload_thread.result[0] != "OK":
+            # The Upload is already stopped, remove this document widget instead
+            self._on_remove_button_clicked(button)
+        elif hasattr(self._upload_thread, "abort"):
             self._upload_thread.abort()
             self._stop_button.set_property("sensitive", False)
 
