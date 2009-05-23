@@ -1,4 +1,5 @@
-import urllib, urlparse, sys, sha, random, httplib, socket
+import urllib, urlparse, sys, random, httplib, socket
+from hashlib import sha1
 
 try:
     import simplejson
@@ -278,7 +279,7 @@ class txtr(object):
         if passhash is not None: self.passh = passhash
         
         if password is not None:
-            self.passh = sha.new(password).hexdigest()
+            self.passh = sha1(password).hexdigest()
         
         if auth_from is not None:
             try:
@@ -287,7 +288,7 @@ class txtr(object):
                 print >>sys.stderr, "Error: Need user:password in %s!\n\n" % auth_from
                 raise
             self.user = u
-            self.passh = sha.new(p).hexdigest()
+            self.passh = sha1(p).hexdigest()
 
     def login(self, username=None, password=None, passhash=None, auth_from=None):
         if username is not None or password is not None or passhash is not None or auth_from is not None:
