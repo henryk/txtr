@@ -1,0 +1,148 @@
+# German translations for PACKAGE package
+# German messages for PACKAGE.
+# Copyright (C) 2009 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Henryk Plötz <henryk@ploetzli.ch>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: txtr Uploader 0.5\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-24 05:12+0200\n"
+"PO-Revision-Date: 2009-05-24 05:13+0100\n"
+"Last-Translator: Henryk Plötz <henryk@ploetzli.ch>\n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../uploader.py:349
+#, python-format
+msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
+msgstr "%(percent)3.f%%, %(done)i von %(size)i bytes"
+
+#: ../uploader.py:355
+msgid "finished"
+msgstr "beendet"
+
+#: ../uploader.py:383
+msgid "Changing attribute ..."
+msgstr "Ändere Attribut ..."
+
+#: ../uploader.py:388
+msgid "Reloading document data ..."
+msgstr "Lade geänderte Dokument-Daten neu ..."
+
+#: ../uploader.py:391
+msgid "Attribute changed."
+msgstr "Attribut geändert."
+
+#: ../uploader.py:396
+msgid "Error while trying to change attribute"
+msgstr "Fehler beim Ändern des Attributs"
+
+#: ../uploader.py:516
+msgid "Adobe PDF files"
+msgstr "Adobe-PDF-Dateien"
+
+#: ../uploader.py:517
+msgid "Microsoft PowerPoint presentations"
+msgstr "Microsoft-PowerPoint-Präsentationen"
+
+#: ../uploader.py:518
+msgid "Microsoft Word documents"
+msgstr "Microsoft-Word-Dokumente"
+
+#: ../uploader.py:519
+msgid "Microsoft Excel sheets"
+msgstr "Microsoft-Excel-Blätter"
+
+#: ../uploader.py:520
+msgid "All files"
+msgstr "Alle Dateien"
+
+#: ../uploader.py:550
+msgid "Select file to upload"
+msgstr "Datei zum hochladen auswählen"
+
+#: ../uploader.py:595
+msgid "Can't upload file without login data"
+msgstr "Kann ohne Login-Daten keine Datei hochladen"
+
+#: ../uploader.py:655
+msgid "Please set login data in preferences"
+msgstr "Bitte Login-Daten in den Einstellungen setzen"
+
+#: ../uploader.py:662
+msgid "Login to txtr.com API ..."
+msgstr "Login bei der txtr.com-API ..."
+
+#: ../uploader.py:667
+msgid "Login not ok, please check username and password"
+msgstr "Login nicht erfolgreich, bitte Benutzername und Passwort überprüfen"
+
+#: ../uploader.py:671
+msgid "Login ok"
+msgstr "Login erfolgreich"
+
+#: ../uploader.py:674
+msgid "Retrieving user's lists ..."
+msgstr "Hole Benutzerlisten ..."
+
+#: ../uploader.py:689
+msgid "Logging out ..."
+msgstr "Logout ..."
+
+#: ../uploader.py:692
+msgid "Logout ok"
+msgstr "Logout erfolgreich"
+
+#: ../uploader.glade.h:1
+msgid "<b>txtr login</b>"
+msgstr "<b>txtr Login-Daten</b>"
+
+#: ../uploader.glade.h:2
+msgid "About txtr Uploader"
+msgstr "Info zu txtr Uploader"
+
+#: ../uploader.glade.h:3
+msgid "GPL-2"
+msgstr "GPL-2"
+
+#: ../uploader.glade.h:4
+msgid "Target:"
+msgstr "Zielordner:"
+
+#: ../uploader.glade.h:5
+msgid "_File"
+msgstr "_Datei"
+
+#: ../uploader.glade.h:6
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: ../uploader.glade.h:7
+msgid "_Password: "
+msgstr "_Passwort: "
+
+#: ../uploader.glade.h:8
+msgid "_Tools"
+msgstr "_Werkzeuge"
+
+#: ../uploader.glade.h:9
+msgid "_Upload ..."
+msgstr "_Hochladen ..."
+
+#: ../uploader.glade.h:10
+msgid "_Username: "
+msgstr "_Benutzername: "
+
+#: ../uploader.glade.h:11
+msgid "txtr Uploader"
+msgstr "txtr Uploader"
+
+#: ../uploader.glade.h:12
+msgid "txtr Uploader preferences"
+msgstr "txtr-Uploader-Einstellungen"
+

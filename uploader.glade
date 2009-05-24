@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat May 23 17:53:22 2009 -->
+<!--Generated with glade3 3.4.5 on Sun May 24 05:08:56 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>
@@ -45,7 +45,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="exit">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">gtk-quit</property>
+                        <property name="label">gtk-quit</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_exit_clicked"/>
@@ -66,7 +66,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="preferences">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">gtk-preferences</property>
+                        <property name="label">gtk-preferences</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_preferences_activate"/>
@@ -87,7 +87,7 @@
                     <child>
                       <widget class="GtkImageMenuItem" id="about">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">gtk-about</property>
+                        <property name="label">gtk-about</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_about_activate"/>
@@ -183,7 +183,7 @@
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="xpad">12</property>
-                <property name="label" translatable="yes">Test file.pdf, 43902 Bytes</property>
+                <property name="label">Test file.pdf, 43902 Bytes</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -194,7 +194,7 @@
               <widget class="GtkProgressBar" id="progressbar1">
                 <property name="visible">True</property>
                 <property name="fraction">0.23000000000000001</property>
-                <property name="text" translatable="yes">23% complete (10097 bytes)</property>
+                <property name="text">23% complete (10097 bytes)</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
@@ -212,7 +212,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip" translatable="yes">Abort upload</property>
                     <property name="response_id">0</property>
                     <child>
                       <widget class="GtkImage" id="image2">
@@ -263,7 +262,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip" translatable="yes">Remove from list</property>
                     <property name="response_id">0</property>
                     <child>
                       <widget class="GtkImage" id="image4">
@@ -290,7 +288,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="has_frame">False</property>
-                    <property name="text" translatable="yes">Title</property>
+                    <property name="text">Title</property>
                     <property name="shadow_type">GTK_SHADOW_NONE</property>
                   </widget>
                 </child>
@@ -300,7 +298,7 @@
                     <child>
                       <widget class="GtkLabel" id="label3">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">by </property>
+                        <property name="label">by </property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -311,7 +309,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="has_frame">False</property>
-                        <property name="text" translatable="yes">Author</property>
+                        <property name="text">Author</property>
                         <property name="shadow_type">GTK_SHADOW_NONE</property>
                       </widget>
                       <packing>
@@ -329,7 +327,7 @@
                     <child>
                       <widget class="GtkLabel" id="label4">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Online: </property>
+                        <property name="label">Online: </property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -341,7 +339,7 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="has_tooltip">True</property>
-                        <property name="label" translatable="yes">http://txtr.com/text/foobar</property>
+                        <property name="label">http://txtr.com/text/foobar</property>
                         <property name="relief">GTK_RELIEF_NONE</property>
                         <property name="xalign">0</property>
                         <property name="response_id">0</property>
@@ -354,7 +352,7 @@
                     <child>
                       <widget class="GtkLabel" id="label5">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Local: Test file.pdf</property>
+                        <property name="label">Local: Test file.pdf</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -395,15 +393,15 @@
   </widget>
   <widget class="GtkAboutDialog" id="uploader_about">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Info zu Glade</property>
+    <property name="title" translatable="yes">About txtr Uploader</property>
     <property name="resizable">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
     <property name="program_name">txtr Uploader</property>
     <property name="version">0.5</property>
-    <property name="copyright" translatable="yes">(c) Henryk Plötz 2009</property>
-    <property name="license" translatable="yes">GPL</property>
+    <property name="copyright">(c) Henryk Plötz 2009</property>
+    <property name="license" translatable="yes">GPL-2</property>
     <property name="authors">Henryk Plötz</property>
     <property name="logo">uploader_logo.png</property>
     <child internal-child="vbox">
@@ -540,7 +538,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">-2</property>
               </widget>
@@ -552,7 +550,7 @@
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">-3</property>
               </widget>

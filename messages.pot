@@ -1,0 +1,146 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-05-24 05:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../uploader.py:349
+#, python-format
+msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
+msgstr ""
+
+#: ../uploader.py:355
+msgid "finished"
+msgstr ""
+
+#: ../uploader.py:383
+msgid "Changing attribute ..."
+msgstr ""
+
+#: ../uploader.py:388
+msgid "Reloading document data ..."
+msgstr ""
+
+#: ../uploader.py:391
+msgid "Attribute changed."
+msgstr ""
+
+#: ../uploader.py:396
+msgid "Error while trying to change attribute"
+msgstr ""
+
+#: ../uploader.py:516
+msgid "Adobe PDF files"
+msgstr ""
+
+#: ../uploader.py:517
+msgid "Microsoft PowerPoint presentations"
+msgstr ""
+
+#: ../uploader.py:518
+msgid "Microsoft Word documents"
+msgstr ""
+
+#: ../uploader.py:519
+msgid "Microsoft Excel sheets"
+msgstr ""
+
+#: ../uploader.py:520
+msgid "All files"
+msgstr ""
+
+#: ../uploader.py:550
+msgid "Select file to upload"
+msgstr ""
+
+#: ../uploader.py:595
+msgid "Can't upload file without login data"
+msgstr ""
+
+#: ../uploader.py:655
+msgid "Please set login data in preferences"
+msgstr ""
+
+#: ../uploader.py:662
+msgid "Login to txtr.com API ..."
+msgstr ""
+
+#: ../uploader.py:667
+msgid "Login not ok, please check username and password"
+msgstr ""
+
+#: ../uploader.py:671
+msgid "Login ok"
+msgstr ""
+
+#: ../uploader.py:674
+msgid "Retrieving user's lists ..."
+msgstr ""
+
+#: ../uploader.py:689
+msgid "Logging out ..."
+msgstr ""
+
+#: ../uploader.py:692
+msgid "Logout ok"
+msgstr ""
+
+#: ../uploader.glade.h:1
+msgid "<b>txtr login</b>"
+msgstr ""
+
+#: ../uploader.glade.h:2
+msgid "About txtr Uploader"
+msgstr ""
+
+#: ../uploader.glade.h:3
+msgid "GPL-2"
+msgstr ""
+
+#: ../uploader.glade.h:4
+msgid "Target:"
+msgstr ""
+
+#: ../uploader.glade.h:5
+msgid "_File"
+msgstr ""
+
+#: ../uploader.glade.h:6
+msgid "_Help"
+msgstr ""
+
+#: ../uploader.glade.h:7
+msgid "_Password: "
+msgstr ""
+
+#: ../uploader.glade.h:8
+msgid "_Tools"
+msgstr ""
+
+#: ../uploader.glade.h:9
+msgid "_Upload ..."
+msgstr ""
+
+#: ../uploader.glade.h:10
+msgid "_Username: "
+msgstr ""
+
+#: ../uploader.glade.h:11
+msgid "txtr Uploader"
+msgstr ""
+
+#: ../uploader.glade.h:12
+msgid "txtr Uploader preferences"
+msgstr ""

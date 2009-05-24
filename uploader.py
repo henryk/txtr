@@ -1,4 +1,8 @@
-import sys, txtr, re, urllib, os, threading, time
+import sys, txtr, re, urllib, os, threading, time, locale, gettext
+
+APP_NAME = "txtr_uploader"
+LOCALE_DIR = "locale"
+_ = gettext.gettext
 
 try:
     import pygtk
@@ -343,11 +347,13 @@ class Document_Widget(gtk.Table, object):
         
         ## Update the progress bar
         if not upload.finished:
-            self._progress_bar.set_text("%3.f%%, %i of %i bytes" % 
-                (upload.percent_done, upload.bytes_done, upload.size))
+            self._progress_bar.set_text(_("%(percent)3.f%%, %(done)i of %(size)i bytes") % { 
+                "percent": upload.percent_done, 
+                "done": upload.bytes_done, 
+                "size": upload.size})
             self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
         else:
-            self._progress_bar.set_text("finished")
+            self._progress_bar.set_text(_("finished"))
             self._progress_bar.set_fraction(1)
         
         
@@ -375,20 +381,20 @@ class Document_Widget(gtk.Table, object):
         self._icon.set_from_pixbuf(l.get_pixbuf())
     
     def _change_document_attribute(self, attribute, value):
-        self._parent.status("change_attribute", "Changing attribute ...")
+        self._parent.status("change_attribute", _("Changing attribute ..."))
         try:
             txtr.WSDocMgmt.changeDocumentAttributes(self._parent.txtr.token, [self._document_id],
                 {attribute: value})
             self._parent.status("change_attribute")
-            self._parent.status("change_attribute", "Reloading document data ...")
+            self._parent.status("change_attribute", _("Reloading document data ..."))
             self._load_document_data()
             self._parent.status("change_attribute")
-            self._parent.status_temporary(message="Attribute changed.")
+            self._parent.status_temporary(message=_("Attribute changed."))
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
             self._parent.status("change_attribute")
-            self._parent.status(message="Error while trying to change attribute")
+            self._parent.status(message=_("Error while trying to change attribute"))
             print e
     
     def _on_stop_button_clicked(self, button):
@@ -508,11 +514,11 @@ class Upload_GUI(object):
         
         ## Prepare file chooser filters
         patterns = (
-            ("Adobe PDF files", "*.[pP][dD][fF]"),
-            ("Microsoft PowerPoint presentations", "*.[pP][pP][tT]", "*.[pP][pP][tT][xX]"),
-            ("Microsoft Word documents", "*.[dD][oO][cC]", "*.[dD][oO][cC][xX]"),
-            ("Microsoft Excel sheets", "*.[xX][lL][sS]", "*.[xX][lL][sS][xX]"),
-            ("All files", "*"),
+            (_("Adobe PDF files"), "*.[pP][dD][fF]"),
+            (_("Microsoft PowerPoint presentations"), "*.[pP][pP][tT]", "*.[pP][pP][tT][xX]"),
+            (_("Microsoft Word documents"), "*.[dD][oO][cC]", "*.[dD][oO][cC][xX]"),
+            (_("Microsoft Excel sheets"), "*.[xX][lL][sS]", "*.[xX][lL][sS][xX]"),
+            (_("All files"), "*"),
         )
         self.uploader_chooser_filters = []
         for pattern in patterns:
@@ -542,7 +548,7 @@ class Upload_GUI(object):
     
     def on_upload_activate(self, menuitem):
         "Callback for activation of menu File -> Upload"
-        c = gtk.FileChooserDialog("Select file to upload", parent=self.main_window,
+        c = gtk.FileChooserDialog(_("Select file to upload"), parent=self.main_window,
                                   buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                     gtk.STOCK_OPEN, gtk.RESPONSE_ACCEPT) )
         for f in self.uploader_chooser_filters:
@@ -587,7 +593,7 @@ class Upload_GUI(object):
     def check_txtr(self):
         "Returns true when login to txtr was successful"
         if not hasattr(self, "txtr"):
-            self.status_temporary("error", "Can't upload file without login data", timeout=5000)
+            self.status_temporary("error", _("Can't upload file without login data"), timeout=5000)
             return False
         return True
     
@@ -647,26 +653,26 @@ class Upload_GUI(object):
         if hasattr(self, "txtr"): return
         
         if not (self.login_data.username and self.login_data.password):
-            self.status(message="Please set login data in preferences")
+            self.status(message=_("Please set login data in preferences"))
             return
         
         self.txtr = txtr.txtr(username=self.login_data.username, password=self.login_data.password)
         self.txtr_dirty = False
         if not DRY_RUN:
             self.status(message=None, pump_events=False) # Clear default context
-            self.status("login", "Login to txtr.com API ...")
+            self.status("login", _("Login to txtr.com API ..."))
             result = self.txtr.login()
             self.status("login")
             
             if not result:
-                self.status(message="Login not ok, please check username and password")
+                self.status(message=_("Login not ok, please check username and password"))
                 del self.txtr
                 return
             
-            self.status(message="Login ok")
+            self.status(message=_("Login ok"))
         
         ## Retrieve lists and set up drop-down menu
-        self.status("lists", "Retrieving user's lists ...")
+        self.status("lists", _("Retrieving user's lists ..."))
         self.available_lists = []
         if not DRY_RUN:
             lists = self.txtr.get_lists()
@@ -681,10 +687,10 @@ class Upload_GUI(object):
     def do_logout(self):
         if not hasattr(self, "txtr"): return
         
-        self.status("login", "Logging out ...")
+        self.status("login", _("Logging out ..."))
         self.txtr.logout()
         self.status("login")
-        self.status(message="Logout ok")
+        self.status(message=_("Logout ok"))
         
         for i in range(len(self.available_lists)):
             self.target.remove_text(0)
@@ -736,6 +742,10 @@ class Upload_GUI(object):
 
 if __name__ == "__main__":
     gtk.gdk.threads_init()
+    
+    for module in (gettext, gtk.glade):
+        module.bindtextdomain(APP_NAME, LOCALE_DIR)
+        module.textdomain(APP_NAME)
     
     g = Upload_GUI()
     if False:
