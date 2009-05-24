@@ -106,8 +106,18 @@ class Upload_Thread_FILE(Upload_Thread):
         self.fp_with_callback = _file_with_read_callback(self.fd, update_gui)
         result = self.parent.txtr.delivery_upload_document_file(
             fp = self.fp_with_callback,
-            file_name = self.file_name,
-            append_list = self.append_list)
+            file_name = self.file_name)
+        
+        if result[0] == "OK":
+            ## Append the document to its list after the upload is complete, preventing
+            ## an exception due to the transactional nature of reaktor operations.
+            ## Note: This means that documents will be appended to their lists in order
+            ##  of upload completion, not in the order their uploads were started
+            ## Warning: This leaves a window of opportunity where the document is not in
+            ##  any list
+            def delayed_work(): # Operate in a call-back to be synchronized with respect to the main loop
+                self.parent.txtr.add_documents_to_list([result[1]], self.append_list)
+            gobject.idle_add(delayed_work)
         
         self.result = result
         self.finished = True
@@ -343,9 +353,9 @@ class Document_Widget(gtk.Table, object):
         else:
             if upload.result is not None:
                 if upload.result[0] == "OK": 
-                    additional_info = ", upload OK: %s" % upload.result[1]
+                    additional_info = _(", upload OK: %s") % upload.result[1]
                 else:
-                    additional_info = ", upload error: %s" % upload.result[0]
+                    additional_info = _(", upload error: %s") % upload.result[0]
                     import pprint
                     pprint.pprint(upload.result)
             else:
@@ -468,7 +478,7 @@ class Lostfound_Dialog(object):
         
         self.parent.status("lostfound", _("Retrieving lost texts ..."))
         try:
-            self.unlisted_ids = txtr.WSDocMgmt.getUnlistedDocumentIDs(self.parent.txtr.token)
+            self.unlisted_ids = txtr.WSDocMgmt.getUnlistedDocumentIDs(self.txtr.token)
         finally:
             self.parent.status("lostfound", pump_events=False)
         
