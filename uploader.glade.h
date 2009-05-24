@@ -1,7 +1,17 @@
+char *s = N_("<b>Lost+Found</b>");
 char *s = N_("<b>txtr login</b>");
 char *s = N_("About txtr Uploader");
+char *s = N_("Do_n't append");
 char *s = N_("GPL-2");
+char *s = N_("Lost+Found");
+char *s = N_("No, don't look for lost texts");
+char *s = N_("Should txtr Uploader look for texts that are\n"
+             "not in any list and append them to the Inbox?");
 char *s = N_("T_arget:");
+char *s = N_("Yes, append automatically");
+char *s = N_("Yes, but ask before appending");
+char *s = N_("_Append to Inbox");
+char *s = N_("_Don't ask again");
 char *s = N_("_File");
 char *s = N_("_Help");
 char *s = N_("_Password: ");
@@ -9,4 +19,5 @@ char *s = N_("_Tools");
 char *s = N_("_Upload ...");
 char *s = N_("_Username: ");
 char *s = N_("txtr Uploader");
+char *s = N_("txtr Uploader found some texts that were not in any list. Do you want to append theses texts to the Inbox?");
 char *s = N_("txtr Uploader preferences");

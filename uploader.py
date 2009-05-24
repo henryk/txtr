@@ -146,6 +146,9 @@ class Upload_Thread_TEST(Upload_Thread):
         gobject.idle_add(self.parent.upload_callback, self)
 
 class Document_Widget(gtk.Table, object):
+    MAXIMUM_ICON_SIZE_X = 48
+    MAXIMUM_ICON_SIZE_Y = 72
+    
     @classmethod
     def new_from_uri(cls, parent, uri, target_list=None, target_name=None):
         if target_list is None:
@@ -171,16 +174,18 @@ class Document_Widget(gtk.Table, object):
         return r
     
     @classmethod
-    def new_from_document_id(cls, parent, document_id):
-        return cls(parent, document_id=document_id)
+    def new_from_document_id(cls, parent, document_id, read_only=False, remove_button=True):
+        return cls(parent, document_id=document_id, read_only=read_only, remove_button=remove_button)
     
-    def __init__(self, parent, document_id = None, upload_thread = None, list_name = None):
+    def __init__(self, parent, document_id = None, upload_thread = None, list_name = None, read_only=False, remove_button=True):
         if (document_id is None and upload_thread is None) or \
             (document_id is not None and upload_thread is not None):
                 raise TypeError, "Need EITHER document_id OR upload_thread argument"
         
         self._mode = None
         self._parent = parent
+        self._read_only = read_only
+        self._show_remove_button = remove_button
         
         gtk.Table.__init__(self, rows=3, columns=3)
         
@@ -280,7 +285,8 @@ class Document_Widget(gtk.Table, object):
         self._url_hbox.pack_start(self._online_label, False)
         self._url_hbox.pack_start(self._url_button, True)
         
-        self._buttonvbox.pack_start(self._remove_button)
+        if self._show_remove_button:
+            self._buttonvbox.pack_start(self._remove_button)
         
         self._middle_vbox.pack_start(self._title_input)
         self._middle_vbox.pack_start(self._author_hbox)
@@ -289,6 +295,8 @@ class Document_Widget(gtk.Table, object):
         for t in self._title_input, self._author_input:
             t.set_has_frame(False)
             t.set_inner_border(None)
+            if self._read_only:
+                t.set_property("editable", False)
         
         if hasattr(self, "_file_name"):
             self._local_label = gtk.Label(str="Local: %s" % self._file_name)
@@ -378,7 +386,29 @@ class Document_Widget(gtk.Table, object):
         l = gtk.gdk.PixbufLoader()
         l.write(self._document_image)
         l.close()
-        self._icon.set_from_pixbuf(l.get_pixbuf())
+        
+        ## Scale
+        pixbuf = l.get_pixbuf()
+        scaled_h = float(pixbuf.get_height())
+        scaled_w = float(pixbuf.get_width())
+        scale = False
+        
+        if scaled_h > self.MAXIMUM_ICON_SIZE_Y:
+            factor = scaled_h / float(self.MAXIMUM_ICON_SIZE_Y)
+            scaled_h = scaled_h / factor
+            scaled_w = scaled_w / factor
+            scale = True
+        if scaled_w > self.MAXIMUM_ICON_SIZE_X:
+            factor = scaled_w / float(self.MAXIMUM_ICON_SIZE_X)
+            scaled_h = scaled_h / factor
+            scaled_w = scaled_w / factor
+            scale = True
+        if scale:
+            pixbuf = pixbuf.scale_simple(int(scaled_w), int(scaled_h), gtk.gdk.INTERP_HYPER)
+        
+        xpad, ypad = self._icon.get_padding()
+        self._icon.set_from_pixbuf(pixbuf)
+        self._icon.set_size_request(self.MAXIMUM_ICON_SIZE_X + 2*xpad, self.MAXIMUM_ICON_SIZE_Y + 2*ypad)
     
     def _change_document_attribute(self, attribute, value):
         self._parent.status("change_attribute", _("Changing attribute ..."))
@@ -421,6 +451,108 @@ class Document_Widget(gtk.Table, object):
 
     txtr = property(lambda self: self._parent.txtr)
 
+class Lostfound_Dialog(object):
+    
+    def __init__(self, parent, gconf_client, parent_window=None):
+        self.parent = parent
+        self.gconf_client = gconf_client
+        self.parent_window = parent_window
+        self.unlisted_ids = []
+    
+    def run_conditionally(self):
+        action = self.default_action
+        if action == self.DEFAULT_ACTION_NOCHECK: 
+            return
+        
+        if not hasattr(self.parent, "txtr"): return
+        
+        self.parent.status("lostfound", _("Retrieving lost texts ..."))
+        try:
+            self.unlisted_ids = txtr.WSDocMgmt.getUnlistedDocumentIDs(self.parent.txtr.token)
+        finally:
+            self.parent.status("lostfound", pump_events=False)
+        
+        if len(self.unlisted_ids) == 0:
+            self.parent.status_temporary("lostfound", _("No lost texts found"), timeout=1000)
+            return
+        
+        self.parent.status("lostfound", _("Found %(count)i unlisted texts") % {
+            "count": len(self.unlisted_ids),
+        })
+        
+        try:
+            if action == self.DEFAULT_ACTION_APPEND:
+                self.do_append()
+            else:
+                self.run()
+        finally:
+            self.parent.status("lostfound")
+        
+    
+    def do_append(self):
+        self.parent.status("lostfound", _("Appending texts to the inbox ..."))
+        try:
+            try:
+                self.txtr.add_documents_to_list(self.unlisted_ids, append_to="INBOX")
+            finally:
+                self.parent.status("lostfound")
+        except:
+            self.parent.status(_("Exception while trying to append to the inbox"))
+        else:
+            self.parent.status_temporary(message=_("Appended %(count)i texts to the inbox") % {
+                "count": len(self.unlisted_ids),
+            })
+    
+    def run(self):
+        lostfound_dialog_xml = gtk.glade.XML(GLADE_FILE, "uploader_lostfound")
+        lostfound_dialog = lostfound_dialog_xml.get_widget("uploader_lostfound")
+        lostfound_documents = lostfound_dialog_xml.get_widget("lostfound_documents")
+        lostfound_no_ask_again = lostfound_dialog_xml.get_widget("lostfound_no_ask_again")
+        
+        def delayed_add(): ## Add the documents in the idle loop to feign responsiveness
+            for document_id in self.unlisted_ids:
+                document = None
+                try:
+                    document = Document_Widget.new_from_document_id(self, document_id, 
+                        read_only=True, remove_button=False)
+                except (SystemExit, KeyboardInterrupt):
+                    raise
+                except Exception, e:
+                    print e
+                
+                if document is not None:
+                    lostfound_documents.pack_start(document, expand=False)
+                    document.show_all()
+                
+                yield True
+            
+            yield False
+        gobject.idle_add(delayed_add().next)
+        
+        if self.parent_window is not None:
+            lostfound_dialog.set_transient_for(self.parent_window)
+        response = lostfound_dialog.run()
+        no_ask_again = lostfound_no_ask_again.get_active()
+        lostfound_dialog.destroy()
+        
+        if response == gtk.RESPONSE_ACCEPT:
+            if no_ask_again:
+                self.default_action = self.DEFAULT_ACTION_APPEND
+            self.do_append()
+        elif response == gtk.RESPONSE_REJECT:
+            if no_ask_again:
+                self.default_action = self.DEFAULT_ACTION_NOCHECK
+    
+    DEFAULT_ACTION_UNSET = 0   ## 0 = unset (default to ASK)
+    DEFAULT_ACTION_NOCHECK = 1 ## 1 = Don't check
+    DEFAULT_ACTION_ASK = 2     ## 2 = Ask each time
+    DEFAULT_ACTION_APPEND = 3  ## 3 = Append automatically
+    default_action = property(
+        lambda self: self.gconf_client.get_int(self.parent.GCONF_DIRECTORY + "/lostfound_action") or 2,
+        lambda self, val: self.gconf_client.set_int(self.parent.GCONF_DIRECTORY + "/lostfound_action", val)
+    )
+    
+    txtr = property(lambda self: self.parent.txtr)
 
 GLADE_FILE = "uploader.glade"
 DRY_RUN = False
@@ -708,6 +840,9 @@ class Upload_GUI(object):
         if inbox_iter is not None:
             self.target.set_active_iter(inbox_iter)
         self.status("lists")
+        
+        lostfound = Lostfound_Dialog(parent=self, gconf_client=self.gconf_client, parent_window=self.main_window)
+        lostfound.run_conditionally()
     
     def do_logout(self):
         if not hasattr(self, "txtr"): return

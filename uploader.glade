@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sun May 24 08:58:07 2009 -->
+<!--Generated with glade3 3.4.5 on Sun May 24 20:55:04 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="uploader_main">
     <property name="title" translatable="yes">txtr Uploader</property>
@@ -531,6 +531,94 @@
             <property name="position">1</property>
           </packing>
         </child>
+        <child>
+          <widget class="GtkFrame" id="frame2">
+            <property name="visible">True</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">GTK_SHADOW_NONE</property>
+            <child>
+              <widget class="GtkAlignment" id="alignment2">
+                <property name="visible">True</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <widget class="GtkVBox" id="vbox5">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkLabel" id="label10">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Should txtr Uploader look for texts that are
+not in any list and append them to the Inbox?</property>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkVBox" id="vbox6">
+                        <property name="visible">True</property>
+                        <child>
+                          <widget class="GtkRadioButton" id="radiobutton1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">No, don't look for lost texts</property>
+                            <property name="response_id">0</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                          </widget>
+                        </child>
+                        <child>
+                          <widget class="GtkRadioButton" id="radiobutton2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">Yes, but ask before appending</property>
+                            <property name="response_id">0</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">radiobutton1</property>
+                          </widget>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkRadioButton" id="radiobutton3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">Yes, append automatically</property>
+                            <property name="response_id">0</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">radiobutton1</property>
+                          </widget>
+                          <packing>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label9">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">&lt;b&gt;Lost+Found&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="type">label_item</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
@@ -555,6 +643,154 @@
                 <property name="label">gtk-ok</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">-3</property>
+              </widget>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">GTK_PACK_END</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkDialog" id="uploader_lostfound">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Lost+Found</property>
+    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="default_width">600</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="has_separator">False</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox3">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <widget class="GtkHBox" id="hbox4">
+            <property name="visible">True</property>
+            <child>
+              <widget class="GtkImage" id="image3">
+                <property name="visible">True</property>
+                <property name="xpad">6</property>
+                <property name="ypad">6</property>
+                <property name="stock">gtk-dialog-info</property>
+                <property name="icon_size">6</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label11">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="xpad">6</property>
+                <property name="ypad">6</property>
+                <property name="label" translatable="yes">txtr Uploader found some texts that were not in any list. Do you want to append theses texts to the Inbox?</property>
+                <property name="wrap">True</property>
+              </widget>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkScrolledWindow" id="scrolledwindow2">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <child>
+              <widget class="GtkViewport" id="viewport1">
+                <property name="visible">True</property>
+                <property name="resize_mode">GTK_RESIZE_QUEUE</property>
+                <child>
+                  <widget class="GtkVBox" id="lostfound_documents">
+                    <property name="visible">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkCheckButton" id="lostfound_no_ask_again">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="label" translatable="yes">_Don't ask again</property>
+            <property name="use_underline">True</property>
+            <property name="response_id">0</property>
+            <property name="draw_indicator">True</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">GTK_PACK_END</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area3">
+            <property name="visible">True</property>
+            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <child>
+              <widget class="GtkButton" id="button6">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="label" translatable="yes">Do_n't append</property>
+                <property name="use_underline">True</property>
+                <property name="response_id">-2</property>
+              </widget>
+            </child>
+            <child>
+              <widget class="GtkButton" id="button5">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="response_id">-3</property>
+                <child>
+                  <widget class="GtkHBox" id="hbox5">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkImage" id="image5">
+                        <property name="visible">True</property>
+                        <property name="stock">gtk-add</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="label12">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Append to Inbox</property>
+                        <property name="use_underline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                </child>
               </widget>
               <packing>
                 <property name="position">1</property>

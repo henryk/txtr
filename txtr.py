@@ -376,7 +376,13 @@ class txtr(object):
     
     def delivery_upload_document_file(self, fp, file_name, document_id=None, append_list=None):
         """Upload a document from a file-like object (fp).
-        Returns a tuple (status, new document-id). Status should be "OK"."""
+        Returns a tuple (status, new document-id). Status should be "OK".
+        A note on the append_list parameter: All operations on the reaktor are transactional,
+        so if you perform two concurrent uploads, both targeting the same list, the second
+        upload will fail with an exception after the document has been transferred since the 
+        append_list list has been changed since starting the upload. To be on the safe side,
+        don't use append_list, but instead append the document manually, after the upload is
+        complete."""
         url = self.DELIVERY_BASE_URL
         if document_id is not None:
             url = url + document_id + "/upload/version"

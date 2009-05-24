@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-24 09:02+0200\n"
+"POT-Creation-Date: 2009-05-25 00:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,136 +16,201 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: uploader.py:350
+#: uploader.py:358
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr ""
 
-#: uploader.py:356
+#: uploader.py:364
 msgid "finished"
 msgstr ""
 
-#: uploader.py:384
+#: uploader.py:414
 msgid "Changing attribute ..."
 msgstr ""
 
-#: uploader.py:389
+#: uploader.py:419
 msgid "Reloading document data ..."
 msgstr ""
 
-#: uploader.py:392
+#: uploader.py:422
 msgid "Attribute changed."
 msgstr ""
 
-#: uploader.py:397
+#: uploader.py:427
 msgid "Error while trying to change attribute"
 msgstr ""
 
-#: uploader.py:519
+#: uploader.py:469
+msgid "Retrieving lost texts ..."
+msgstr ""
+
+#: uploader.py:477
+msgid "No lost texts found"
+msgstr ""
+
+#: uploader.py:480
+#, python-format
+msgid "Found %(count)i unlisted texts"
+msgstr ""
+
+#: uploader.py:494
+msgid "Appending texts to the inbox ..."
+msgstr ""
+
+#: uploader.py:502
+msgid "Exception while trying to append to the inbox"
+msgstr ""
+
+#: uploader.py:504
+#, python-format
+msgid "Appended %(count)i texts to the inbox"
+msgstr ""
+
+#: uploader.py:653
 msgid "Adobe PDF files"
 msgstr ""
 
-#: uploader.py:520
+#: uploader.py:654
 msgid "Microsoft PowerPoint presentations"
 msgstr ""
 
-#: uploader.py:521
+#: uploader.py:655
 msgid "Microsoft Word documents"
 msgstr ""
 
-#: uploader.py:522
+#: uploader.py:656
 msgid "Microsoft Excel sheets"
 msgstr ""
 
-#: uploader.py:523
+#: uploader.py:657
 msgid "All files"
 msgstr ""
 
-#: uploader.py:553
+#: uploader.py:687
 msgid "Select file to upload"
 msgstr ""
 
-#: uploader.py:598
+#: uploader.py:732
 msgid "Can't upload file without login data"
 msgstr ""
 
-#: uploader.py:658
+#: uploader.py:792
 msgid "Please set login data in preferences"
 msgstr ""
 
-#: uploader.py:665
+#: uploader.py:799
 msgid "Login to txtr.com API ..."
 msgstr ""
 
-#: uploader.py:670
+#: uploader.py:804
 msgid "Login not ok, please check username and password"
 msgstr ""
 
-#: uploader.py:674
+#: uploader.py:808
 msgid "Login ok"
 msgstr ""
 
-#: uploader.py:677
+#: uploader.py:811
 msgid "Retrieving user's lists ..."
 msgstr ""
 
-#: uploader.py:693
-#, python-format
-msgid "%(list)s (in %(view)s)"
-msgstr ""
-
-#: uploader.py:708
+#: uploader.py:852
 msgid "Logging out ..."
 msgstr ""
 
-#: uploader.py:711
+#: uploader.py:855
 msgid "Logout ok"
 msgstr ""
 
 #: uploader.glade.h:1
-msgid "<b>txtr login</b>"
+msgid "<b>Lost+Found</b>"
 msgstr ""
 
 #: uploader.glade.h:2
-msgid "About txtr Uploader"
+msgid "<b>txtr login</b>"
 msgstr ""
 
 #: uploader.glade.h:3
-msgid "GPL-2"
+msgid "About txtr Uploader"
 msgstr ""
 
 #: uploader.glade.h:4
-msgid "T_arget:"
+msgid "Do_n't append"
 msgstr ""
 
 #: uploader.glade.h:5
-msgid "_File"
+msgid "GPL-2"
 msgstr ""
 
 #: uploader.glade.h:6
-msgid "_Help"
+msgid "Lost+Found"
 msgstr ""
 
 #: uploader.glade.h:7
-msgid "_Password: "
+msgid "No, don't look for lost texts"
 msgstr ""
 
 #: uploader.glade.h:8
-msgid "_Tools"
-msgstr ""
-
-#: uploader.glade.h:9
-msgid "_Upload ..."
+msgid ""
+"Should txtr Uploader look for texts that are\n"
+"not in any list and append them to the Inbox?"
 msgstr ""
 
 #: uploader.glade.h:10
-msgid "_Username: "
+msgid "T_arget:"
 msgstr ""
 
 #: uploader.glade.h:11
-msgid "txtr Uploader"
+msgid "Yes, append automatically"
 msgstr ""
 
 #: uploader.glade.h:12
+msgid "Yes, but ask before appending"
+msgstr ""
+
+#: uploader.glade.h:13
+msgid "_Append to Inbox"
+msgstr ""
+
+#: uploader.glade.h:14
+msgid "_Don't ask again"
+msgstr ""
+
+#: uploader.glade.h:15
+msgid "_File"
+msgstr ""
+
+#: uploader.glade.h:16
+msgid "_Help"
+msgstr ""
+
+#: uploader.glade.h:17
+msgid "_Password: "
+msgstr ""
+
+#: uploader.glade.h:18
+msgid "_Tools"
+msgstr ""
+
+#: uploader.glade.h:19
+msgid "_Upload ..."
+msgstr ""
+
+#: uploader.glade.h:20
+msgid "_Username: "
+msgstr ""
+
+#: uploader.glade.h:21
+msgid "txtr Uploader"
+msgstr ""
+
+#: uploader.glade.h:22
+msgid ""
+"txtr Uploader found some texts that were not in any list. Do you want to "
+"append theses texts to the Inbox?"
+msgstr ""
+
+#: uploader.glade.h:23
 msgid "txtr Uploader preferences"
 msgstr ""
