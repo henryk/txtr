@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: txtr Uploader 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-24 05:12+0200\n"
-"PO-Revision-Date: 2009-05-24 05:13+0100\n"
+"POT-Creation-Date: 2009-05-24 09:02+0200\n"
+"PO-Revision-Date: 2009-05-24 09:03+0100\n"
 "Last-Translator: Henryk Plötz <henryk@ploetzli.ch>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -17,132 +17,137 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../uploader.py:349
+#: uploader.py:350
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr "%(percent)3.f%%, %(done)i von %(size)i bytes"
 
-#: ../uploader.py:355
+#: uploader.py:356
 msgid "finished"
 msgstr "beendet"
 
-#: ../uploader.py:383
+#: uploader.py:384
 msgid "Changing attribute ..."
 msgstr "Ändere Attribut ..."
 
-#: ../uploader.py:388
+#: uploader.py:389
 msgid "Reloading document data ..."
 msgstr "Lade geänderte Dokument-Daten neu ..."
 
-#: ../uploader.py:391
+#: uploader.py:392
 msgid "Attribute changed."
 msgstr "Attribut geändert."
 
-#: ../uploader.py:396
+#: uploader.py:397
 msgid "Error while trying to change attribute"
 msgstr "Fehler beim Ändern des Attributs"
 
-#: ../uploader.py:516
+#: uploader.py:519
 msgid "Adobe PDF files"
 msgstr "Adobe-PDF-Dateien"
 
-#: ../uploader.py:517
+#: uploader.py:520
 msgid "Microsoft PowerPoint presentations"
 msgstr "Microsoft-PowerPoint-Präsentationen"
 
-#: ../uploader.py:518
+#: uploader.py:521
 msgid "Microsoft Word documents"
 msgstr "Microsoft-Word-Dokumente"
 
-#: ../uploader.py:519
+#: uploader.py:522
 msgid "Microsoft Excel sheets"
 msgstr "Microsoft-Excel-Blätter"
 
-#: ../uploader.py:520
+#: uploader.py:523
 msgid "All files"
 msgstr "Alle Dateien"
 
-#: ../uploader.py:550
+#: uploader.py:553
 msgid "Select file to upload"
 msgstr "Datei zum hochladen auswählen"
 
-#: ../uploader.py:595
+#: uploader.py:598
 msgid "Can't upload file without login data"
 msgstr "Kann ohne Login-Daten keine Datei hochladen"
 
-#: ../uploader.py:655
+#: uploader.py:658
 msgid "Please set login data in preferences"
 msgstr "Bitte Login-Daten in den Einstellungen setzen"
 
-#: ../uploader.py:662
+#: uploader.py:665
 msgid "Login to txtr.com API ..."
 msgstr "Login bei der txtr.com-API ..."
 
-#: ../uploader.py:667
+#: uploader.py:670
 msgid "Login not ok, please check username and password"
 msgstr "Login nicht erfolgreich, bitte Benutzername und Passwort überprüfen"
 
-#: ../uploader.py:671
+#: uploader.py:674
 msgid "Login ok"
 msgstr "Login erfolgreich"
 
-#: ../uploader.py:674
+#: uploader.py:677
 msgid "Retrieving user's lists ..."
 msgstr "Hole Benutzerlisten ..."
 
-#: ../uploader.py:689
+#: uploader.py:693
+#, python-format
+msgid "%(list)s (in %(view)s)"
+msgstr "%(list)s (in %(view)s)"
+
+#: uploader.py:708
 msgid "Logging out ..."
 msgstr "Logout ..."
 
-#: ../uploader.py:692
+#: uploader.py:711
 msgid "Logout ok"
 msgstr "Logout erfolgreich"
 
-#: ../uploader.glade.h:1
+#: uploader.glade.h:1
 msgid "<b>txtr login</b>"
 msgstr "<b>txtr Login-Daten</b>"
 
-#: ../uploader.glade.h:2
+#: uploader.glade.h:2
 msgid "About txtr Uploader"
 msgstr "Info zu txtr Uploader"
 
-#: ../uploader.glade.h:3
+#: uploader.glade.h:3
 msgid "GPL-2"
 msgstr "GPL-2"
 
-#: ../uploader.glade.h:4
-msgid "Target:"
-msgstr "Zielordner:"
+#: uploader.glade.h:4
+msgid "T_arget:"
+msgstr "_Zielordner:"
 
-#: ../uploader.glade.h:5
+#: uploader.glade.h:5
 msgid "_File"
 msgstr "_Datei"
 
-#: ../uploader.glade.h:6
+#: uploader.glade.h:6
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: ../uploader.glade.h:7
+#: uploader.glade.h:7
 msgid "_Password: "
 msgstr "_Passwort: "
 
-#: ../uploader.glade.h:8
+#: uploader.glade.h:8
 msgid "_Tools"
 msgstr "_Werkzeuge"
 
-#: ../uploader.glade.h:9
+#: uploader.glade.h:9
 msgid "_Upload ..."
 msgstr "_Hochladen ..."
 
-#: ../uploader.glade.h:10
+#: uploader.glade.h:10
 msgid "_Username: "
 msgstr "_Benutzername: "
 
-#: ../uploader.glade.h:11
+#: uploader.glade.h:11
 msgid "txtr Uploader"
 msgstr "txtr Uploader"
 
-#: ../uploader.glade.h:12
+#: uploader.glade.h:12
 msgid "txtr Uploader preferences"
 msgstr "txtr-Uploader-Einstellungen"
 

@@ -1,7 +1,7 @@
 char *s = N_("<b>txtr login</b>");
 char *s = N_("About txtr Uploader");
 char *s = N_("GPL-2");
-char *s = N_("Target:");
+char *s = N_("T_arget:");
 char *s = N_("_File");
 char *s = N_("_Help");
 char *s = N_("_Password: ");

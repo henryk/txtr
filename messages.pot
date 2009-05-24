@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-24 05:12+0200\n"
+"POT-Creation-Date: 2009-05-24 09:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,131 +16,136 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../uploader.py:349
+#: uploader.py:350
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr ""
 
-#: ../uploader.py:355
+#: uploader.py:356
 msgid "finished"
 msgstr ""
 
-#: ../uploader.py:383
+#: uploader.py:384
 msgid "Changing attribute ..."
 msgstr ""
 
-#: ../uploader.py:388
+#: uploader.py:389
 msgid "Reloading document data ..."
 msgstr ""
 
-#: ../uploader.py:391
+#: uploader.py:392
 msgid "Attribute changed."
 msgstr ""
 
-#: ../uploader.py:396
+#: uploader.py:397
 msgid "Error while trying to change attribute"
 msgstr ""
 
-#: ../uploader.py:516
+#: uploader.py:519
 msgid "Adobe PDF files"
 msgstr ""
 
-#: ../uploader.py:517
+#: uploader.py:520
 msgid "Microsoft PowerPoint presentations"
 msgstr ""
 
-#: ../uploader.py:518
+#: uploader.py:521
 msgid "Microsoft Word documents"
 msgstr ""
 
-#: ../uploader.py:519
+#: uploader.py:522
 msgid "Microsoft Excel sheets"
 msgstr ""
 
-#: ../uploader.py:520
+#: uploader.py:523
 msgid "All files"
 msgstr ""
 
-#: ../uploader.py:550
+#: uploader.py:553
 msgid "Select file to upload"
 msgstr ""
 
-#: ../uploader.py:595
+#: uploader.py:598
 msgid "Can't upload file without login data"
 msgstr ""
 
-#: ../uploader.py:655
+#: uploader.py:658
 msgid "Please set login data in preferences"
 msgstr ""
 
-#: ../uploader.py:662
+#: uploader.py:665
 msgid "Login to txtr.com API ..."
 msgstr ""
 
-#: ../uploader.py:667
+#: uploader.py:670
 msgid "Login not ok, please check username and password"
 msgstr ""
 
-#: ../uploader.py:671
+#: uploader.py:674
 msgid "Login ok"
 msgstr ""
 
-#: ../uploader.py:674
+#: uploader.py:677
 msgid "Retrieving user's lists ..."
 msgstr ""
 
-#: ../uploader.py:689
+#: uploader.py:693
+#, python-format
+msgid "%(list)s (in %(view)s)"
+msgstr ""
+
+#: uploader.py:708
 msgid "Logging out ..."
 msgstr ""
 
-#: ../uploader.py:692
+#: uploader.py:711
 msgid "Logout ok"
 msgstr ""
 
-#: ../uploader.glade.h:1
+#: uploader.glade.h:1
 msgid "<b>txtr login</b>"
 msgstr ""
 
-#: ../uploader.glade.h:2
+#: uploader.glade.h:2
 msgid "About txtr Uploader"
 msgstr ""
 
-#: ../uploader.glade.h:3
+#: uploader.glade.h:3
 msgid "GPL-2"
 msgstr ""
 
-#: ../uploader.glade.h:4
-msgid "Target:"
+#: uploader.glade.h:4
+msgid "T_arget:"
 msgstr ""
 
-#: ../uploader.glade.h:5
+#: uploader.glade.h:5
 msgid "_File"
 msgstr ""
 
-#: ../uploader.glade.h:6
+#: uploader.glade.h:6
 msgid "_Help"
 msgstr ""
 
-#: ../uploader.glade.h:7
+#: uploader.glade.h:7
 msgid "_Password: "
 msgstr ""
 
-#: ../uploader.glade.h:8
+#: uploader.glade.h:8
 msgid "_Tools"
 msgstr ""
 
-#: ../uploader.glade.h:9
+#: uploader.glade.h:9
 msgid "_Upload ..."
 msgstr ""
 
-#: ../uploader.glade.h:10
+#: uploader.glade.h:10
 msgid "_Username: "
 msgstr ""
 
-#: ../uploader.glade.h:11
+#: uploader.glade.h:11
 msgid "txtr Uploader"
 msgstr ""
 
-#: ../uploader.glade.h:12
+#: uploader.glade.h:12
 msgid "txtr Uploader preferences"
 msgstr ""

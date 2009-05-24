@@ -1,0 +1,10 @@
+all: locale/de/LC_MESSAGES/txtr_uploader.mo messages.pot
+
+uploader.glade.h: uploader.glade
+	intltool-extract --type=gettext/glade uploader.glade
+
+messages.pot: uploader.py uploader.glade.h
+	xgettext  -k_ -kN_ --output messages.pot --from-code utf-8 uploader.py uploader.glade.h
+
+locale/de/LC_MESSAGES/txtr_uploader.mo: de.po
+	msgfmt de.po -o locale/de/LC_MESSAGES/txtr_uploader.mo
