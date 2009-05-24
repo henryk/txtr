@@ -511,7 +511,7 @@ class Upload_GUI(object):
         gtk.quit_add(0, self.fast_shutdown)
         
         self.documents = []
-        self.available_lists = gtk.ListStore(str, str)
+        self.available_lists = gtk.TreeStore(str, str)
         self.target.set_model(self.available_lists)
         
         ## Prepare file chooser filters
@@ -604,8 +604,8 @@ class Upload_GUI(object):
         
         if not self.check_txtr(): return
         
-        target_list = self.target.get_active()
-        if target_list == -1:
+        target_list = self.target.get_active_iter()
+        if target_list is None:
             target = None
         else:
             target = self.available_lists[target_list]
@@ -677,29 +677,36 @@ class Upload_GUI(object):
         self.status("lists", _("Retrieving user's lists ..."))
         if not DRY_RUN:
             lists, views = self.txtr.get_lists_and_views()
+            inbox_id = self.txtr.get_special_list("INBOX").get("ID", None)
         else:
             views = [{"name": "My Texts", "ID": "foo", "children": ("bar",)}]
             lists = [{"name": "Private Texts", "ID": "bar"}, {"name": "INBOX", "ID":"baz"}]
+            inbox_id = None
         
-        # FIXME: Find a way to find the Inbox (and maybe Trash) and make it the first item
+        inbox_iter = None
         for view in views:
             if view["name"] is None: continue
+            
+            if len(view["children_lists"]) > 0:
+                last_view = self.available_lists.append(None, (view["name"], None) )
+                # FIXME: Prevent the user from selecting these entries
+            
             for child in view["children_lists"]:
                 list = [l for l in lists if l["ID"] == child]
                 if len(list) == 0: continue
                 list = list[0]
                 list["consumed"] = True
                 
-                self.available_lists.append( (_("%(list)s (in %(view)s)") % {
-                    "view": view["name"],
-                    "list": list["name"]
-                }, list["ID"]) )
+                last_list = self.available_lists.append(last_view, (list["name"], list["ID"]) )
+                if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
         
         for list in lists: # The remaining lists (not in any view set)
             if list.has_key("consumed") and list["consumed"]: continue
-            self.available_lists.append( (list["name"], list["ID"]) )
+            last_list = self.available_lists.append(None, (list["name"], list["ID"]) )
+            if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
         
-        self.target.set_active(0)
+        if inbox_iter is not None:
+            self.target.set_active_iter(inbox_iter)
         self.status("lists")
     
     def do_logout(self):
