@@ -40,6 +40,8 @@ class Upload_Thread(object):
         self.parent = parent
         self.append_list = append_list
         self.harakiri = False
+        self.finished = False
+        self.result = None
         
         self.thread = threading.Thread(target=self.run)
     
@@ -49,9 +51,21 @@ class Upload_Thread(object):
     
     def run(self):
         try:
-            self.do_upload()
-        except self.HarakiriException:
-            pass
+            try:
+                self.do_upload()
+            except self.HarakiriException:
+                pass
+            except Exception, e:
+                if not self.finished:
+                    self.finished = True
+                    self.result = ("Exception", e)
+                    gobject.idle_add(self.parent.upload_callback, self)
+                raise
+        finally:
+            if not self.finished:
+                self.finished = True
+                self.result = ("Unexpected thread end")
+                gobject.idle_add(self.parent.upload_callback, self)
 
 class Upload_Thread_FILE(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
@@ -65,8 +79,6 @@ class Upload_Thread_FILE(Upload_Thread):
         self.bytes_done = 0
         self.percent_done = 0
         self.aborted = False
-        self.finished = False
-        self.result = None
         
         super(Upload_Thread_FILE, self).__init__(uri, parent, append_list)
     
@@ -112,8 +124,6 @@ class Upload_Thread_TEST(Upload_Thread):
         self.file_name = "Test file"
         self.bytes_done = 0
         self.percent_done = 0
-        self.finished = False
-        self.result = None
         super(Upload_Thread_TEST, self).__init__(uri, parent, append_list)
     
     def do_upload(self):
