@@ -147,13 +147,13 @@ class Upload_Thread_TEST(Upload_Thread):
 
 class Document_Widget(gtk.Table, object):
     @classmethod
-    def new_from_uri(cls, parent, uri, target=None):
-        if target is None:
+    def new_from_uri(cls, parent, uri, target_list=None, target_name=None):
+        if target_list is None:
             append_list = None
             list_name = "No list"
         else:
-            append_list = target[0]
-            list_name = target[1]
+            append_list = target_list
+            list_name = target_name
         
         thread = None
         try:
@@ -511,6 +511,8 @@ class Upload_GUI(object):
         gtk.quit_add(0, self.fast_shutdown)
         
         self.documents = []
+        self.available_lists = gtk.ListStore(str, str)
+        self.target.set_model(self.available_lists)
         
         ## Prepare file chooser filters
         patterns = (
@@ -610,7 +612,7 @@ class Upload_GUI(object):
         
         document = None
         try:
-            document = Document_Widget.new_from_uri(self, uri, target)
+            document = Document_Widget.new_from_uri(self, uri, target[1], target[0])
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception, e:
@@ -673,14 +675,30 @@ class Upload_GUI(object):
         
         ## Retrieve lists and set up drop-down menu
         self.status("lists", _("Retrieving user's lists ..."))
-        self.available_lists = []
         if not DRY_RUN:
-            lists = self.txtr.get_lists()
+            lists, views = self.txtr.get_lists_and_views()
         else:
-            lists = [{"ID":"foo", "name":"Foo"}]
-        for l in lists:
-            self.available_lists.append( (l["ID"], l["name"]) )
-            self.target.append_text(l["name"])
+            views = [{"name": "My Texts", "ID": "foo", "children": ("bar",)}]
+            lists = [{"name": "Private Texts", "ID": "bar"}, {"name": "INBOX", "ID":"baz"}]
+        
+        # FIXME: Find a way to find the Inbox (and maybe Trash) and make it the first item
+        for view in views:
+            if view["name"] is None: continue
+            for child in view["children_lists"]:
+                list = [l for l in lists if l["ID"] == child]
+                if len(list) == 0: continue
+                list = list[0]
+                list["consumed"] = True
+                
+                self.available_lists.append( (_("%(list)s (in %(view)s)") % {
+                    "view": view["name"],
+                    "list": list["name"]
+                }, list["ID"]) )
+        
+        for list in lists: # The remaining lists (not in any view set)
+            if list.has_key("consumed") and list["consumed"]: continue
+            self.available_lists.append( (list["name"], list["ID"]) )
+        
         self.target.set_active(0)
         self.status("lists")
     
@@ -692,9 +710,7 @@ class Upload_GUI(object):
         self.status("login")
         self.status(message=_("Logout ok"))
         
-        for i in range(len(self.available_lists)):
-            self.target.remove_text(0)
-        self.available_lists = []
+        self.available_lists.clear()
         
         del self.txtr
     

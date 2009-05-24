@@ -203,6 +203,7 @@ class _WSViewMgmt(_JSONBASE):
     BASENAME = "WSViewMgmt"
     METHODS = {
         "getViewSets": ["token", "viewSetsOfUser"],
+        "getViews": ["token", "viewSetID"],
     }
 WSViewMgmt = _WSViewMgmt(_COOKIE)
 
@@ -415,4 +416,13 @@ class txtr(object):
 
     def get_lists(self, username=None):
         return WSListMgmt.getListsForUser(self.token, username)
+    
+    def get_lists_and_views(self, username=None):
+        lists = WSListMgmt.getListsForUser(self.token, username)
+        viewsets = WSViewMgmt.getViewSets(self.token, username)
+        for viewset in viewsets:
+            viewset["name"] = viewset["properties"].get("name", None)
+            views = WSViewMgmt.getViews(self.token, viewset["ID"])
+            viewset["children_lists"] = [v["listID"] for v in views]
+        return lists, viewsets
 
