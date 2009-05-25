@@ -1,4 +1,4 @@
-import urllib, urlparse, sys, random, httplib, socket
+import urllib, urlparse, sys, random, httplib, socket, threading, time
 from hashlib import sha1
 
 try:
@@ -269,6 +269,8 @@ class txtr(object):
         self.token = None
         self.loginresponse = None
         
+        self._event_bus = None
+        
         self._cache = {}
     
     def __del__(self):
@@ -431,4 +433,50 @@ class txtr(object):
             views = WSViewMgmt.getViews(self.token, viewset["ID"])
             viewset["children_lists"] = [v["listID"] for v in views]
         return lists, viewsets
+    
+    def get_event_bus(self):
+        if self._event_bus is None:
+            self._event_bus = self.Event_Bus(self)
+            self._event_bus.start()
+        return self._event_bus
+    event_bus = property(get_event_bus)
 
+    class Event_Bus(threading.Thread):
+        POLL_TIME = 5 # in seconds
+        
+        def __init__(self, parent):
+            threading.Thread.__init__(self)
+            self.parent = parent
+            self.subscriptions = {}
+            self.stop = False
+            self.last_run = 0
+        
+        def subscribe(self, callback, event_type=None, event_sub_type=None, *args, **kwargs):
+            """Register a callback to be called with optional user defined data whenever
+            an event with the given type and subtype is detected. The callback will be given
+            the event as its first argument."""
+            id = WSEventBus.subscribe(self.parent.token, event_type, event_sub_type)
+            self.subscriptions[id] = (callback, args, kwargs) ## FIXME: Locking?
+            return id
+        
+        def unsubscribe(self, id):
+            WSEventBus.unsubscribe(self.parent.token, id, None, None)
+            del self.subscriptions[id]
+        
+        def run(self):
+            while not self.stop:
+                ## This loop runs once per second to check whether to end the thread
+                ## However, actual event bus polling is only performed every POLL_TIME runs
+                
+                if self.last_run > self.POLL_TIME:
+                    self.last_run = 0
+                    
+                    events = WSEventBus.getEvents(self.parent.token, None, None)
+                    for event in events:
+                        for id in event["subscriptionIDs"]:
+                            if self.subscriptions.has_key(id):
+                                x = self.subscriptions[id]
+                                x[0](event, *x[1], **x[2])
+                
+                self.last_run = self.last_run + 1
+                time.sleep(1)
