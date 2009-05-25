@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: txtr Uploader 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-25 04:19+0200\n"
-"PO-Revision-Date: 2009-05-25 04:19+0100\n"
+"POT-Creation-Date: 2009-05-25 04:29+0200\n"
+"PO-Revision-Date: 2009-05-25 04:29+0100\n"
 "Last-Translator: Henryk Plötz <henryk@ploetzli.ch>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -134,11 +134,21 @@ msgstr "Login erfolgreich"
 msgid "Retrieving user's lists ..."
 msgstr "Hole Benutzerlisten ..."
 
-#: uploader.py:905
+#: uploader.py:889
+#: uploader.py:898
+msgid "Inbox"
+msgstr "Meine neuen Texte"
+
+#: uploader.py:890
+#: uploader.py:899
+msgid "Trash"
+msgstr "Papierkorb"
+
+#: uploader.py:914
 msgid "Logging out ..."
 msgstr "Logout ..."
 
-#: uploader.py:908
+#: uploader.py:917
 msgid "Logout ok"
 msgstr "Logout erfolgreich"
 

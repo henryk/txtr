@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-25 04:19+0200\n"
+"POT-Creation-Date: 2009-05-25 04:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,11 +133,19 @@ msgstr ""
 msgid "Retrieving user's lists ..."
 msgstr ""
 
-#: uploader.py:905
+#: uploader.py:889 uploader.py:898
+msgid "Inbox"
+msgstr ""
+
+#: uploader.py:890 uploader.py:899
+msgid "Trash"
+msgstr ""
+
+#: uploader.py:914
 msgid "Logging out ..."
 msgstr ""
 
-#: uploader.py:908
+#: uploader.py:917
 msgid "Logout ok"
 msgstr ""
 

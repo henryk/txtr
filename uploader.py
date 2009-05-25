@@ -865,10 +865,12 @@ class Upload_GUI(object):
         if not DRY_RUN:
             lists, views = self.txtr.get_lists_and_views()
             inbox_id = self.txtr.get_special_list("INBOX").get("ID", None)
+            trash_id = self.txtr.get_special_list("TRASH").get("ID", None)
         else:
             views = [{"name": "My Texts", "ID": "foo", "children": ("bar",)}]
             lists = [{"name": "Private Texts", "ID": "bar"}, {"name": "INBOX", "ID":"baz"}]
             inbox_id = None
+            trash_id = None
         
         inbox_iter = None
         for view in views:
@@ -884,11 +886,18 @@ class Upload_GUI(object):
                 list = list[0]
                 list["consumed"] = True
                 
+                if list["ID"] == inbox_id: list["name"] = _("Inbox")
+                if list["ID"] == trash_id: list["name"] = _("Trash")
+                
                 last_list = self.available_lists.append(last_view, (list["name"], list["ID"]) )
                 if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
         
         for list in lists: # The remaining lists (not in any view set)
             if list.has_key("consumed") and list["consumed"]: continue
+            
+            if list["ID"] == inbox_id: list["name"] = _("Inbox")
+            if list["ID"] == trash_id: list["name"] = _("Trash")
+            
             last_list = self.available_lists.append(None, (list["name"], list["ID"]) )
             if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
         
