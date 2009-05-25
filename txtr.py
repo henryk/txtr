@@ -331,10 +331,23 @@ class txtr(object):
             "get_special_list", list_type)
     
     def create_from_web(self, url, display_name = None, categories = None, attributes = None, tags = None, append_to = "INBOX", append_position = -1):
-        udid = WSDocMgmt.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
+        """Creates a new document from a WWW URL and optionally appends it to a given list.
+        
+        Note on mixing this call with other calls: Since all (except for the delivery)
+        operations on this txtr object (try) to use the same HTTP connection they should not be
+        run concurrently. Since it is likely that you want to execute other operations besides
+        this create call, a special contract is followed: If you don't use the append_to argument
+        (that is: specify append_to=None) then this method will open up a separate HTTP connection
+        for the createDocumentFromWeb call. You can then perform the append at a later time yourself,
+        in a synchronized manner.""" 
         
         if append_to is not None:
+            udid = WSDocMgmt.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
             self.add_documents_to_list([udid], append_to, append_position)
+        else:
+            doc_mgr = _WSDocMgmt(None) ## Create a custom WSDocMgmt, in order to force a separate HTTP connection
+            udid = doc_mgr.createDocumentFromWeb(self.token, url, display_name, categories, attributes, tags)
+            del doc_mgr
         
         return udid
     

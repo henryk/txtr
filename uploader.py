@@ -156,17 +156,26 @@ class Upload_Thread_HTTP(Upload_Thread):
             ## Ping the GUI every once in a while, using the idle loop
             gobject.idle_add(self.parent.upload_callback, self)
             
+            if self.finished and self.append_list is not None:
+                if self.result[0] == "OK":
+                    ## Do the list append here, synchronized within the main loop
+                    self.parent.txtr.add_documents_to_list([self.result[1]], 
+                        append_to=self.append_list)
+            
             return not self.finished
         
         gobject.timeout_add(100, update_gui)
         
-        document_id = self.parent.txtr.create_from_web(self.source, append_to=self.append_list)
+        ## Don't do the list append here
+        document_id = self.parent.txtr.create_from_web(self.source, append_to=None)
         
         if document_id is not None:
             self.result = ("OK", document_id)
         else:
             self.result = ("Upload error")
         self.finished = True
+
+class Upload_Thread_HTTPS(Upload_Thread_HTTP): pass
 
 class Upload_Thread_TEST(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
@@ -860,6 +869,7 @@ class Upload_GUI(object):
         
         next_upload = None
         for document in self.documents_vbox.get_children():
+            if not isinstance(document, Document_Widget): continue
             if not document.is_finished() and next_upload is None: next_upload = document
         
         if next_upload is not None:
