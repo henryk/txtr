@@ -74,6 +74,8 @@ class Upload_Thread(object):
                 gobject.idle_add(self.parent.upload_callback, self)
 
 class Upload_Thread_FILE(Upload_Thread):
+    MOVE_HACK = False
+    
     def __init__(self, uri, parent, append_list=None):
         if not uri.lower().startswith("file:///"):
             raise ValueError, "Unsupported file uri format: %r" % uri
@@ -114,9 +116,10 @@ class Upload_Thread_FILE(Upload_Thread):
         self.fp_with_callback = _file_with_read_callback(self.fd, update_gui)
         result = self.parent.txtr.delivery_upload_document_file(
             fp = self.fp_with_callback,
-            file_name = self.file_name)
+            file_name = self.file_name,
+            append_list = (not self.MOVE_HACK) and self.append_list or None)
         
-        if result[0] == "OK":
+        if self.MOVE_HACK and result[0] == "OK":
             ## Append the document to its list after the upload is complete, preventing
             ## an exception due to the transactional nature of reaktor operations.
             ## Note: This means that documents will be appended to their lists in order
