@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: txtr Uploader 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-25 04:29+0200\n"
-"PO-Revision-Date: 2009-05-25 04:29+0100\n"
+"POT-Creation-Date: 2009-05-25 09:18+0200\n"
+"PO-Revision-Date: 2009-05-25 09:19+0100\n"
 "Last-Translator: Henryk Plötz <henryk@ploetzli.ch>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -17,138 +17,147 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: uploader.py:369
+#: uploader.py:348
+#, python-format
+msgid "Source: %s"
+msgstr "Quelle: %s"
+
+#: uploader.py:393
 #, python-format
 msgid ", upload OK: %s"
 msgstr ", Upload erfolgreich: %s"
 
-#: uploader.py:371
+#: uploader.py:395
 msgid ", upload aborted by user"
 msgstr ", Upload vom Benutzer abgebrochen"
 
-#: uploader.py:373
+#: uploader.py:397
 #, python-format
 msgid ", upload error: %s"
 msgstr ", Upload nicht erfolgreich: %s"
 
-#: uploader.py:383
+#: uploader.py:407
 msgid "Waiting for other upload(s) to finish"
 msgstr "Warte bis der/die andere(n) Upload(s) beendet sind"
 
-#: uploader.py:386
+#: uploader.py:411
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr "%(percent)3.f%%, %(done)i von %(size)i bytes"
 
-#: uploader.py:392
+#: uploader.py:417
+msgid "Upload in progress ..."
+msgstr "Upload läuft ..."
+
+#: uploader.py:421
 msgid "finished"
 msgstr "beendet"
 
-#: uploader.py:450
+#: uploader.py:479
 msgid "Changing attribute ..."
 msgstr "Ändere Attribut ..."
 
-#: uploader.py:455
+#: uploader.py:484
 msgid "Reloading document data ..."
 msgstr "Lade geänderte Dokument-Daten neu ..."
 
-#: uploader.py:458
+#: uploader.py:487
 msgid "Attribute changed."
 msgstr "Attribut geändert."
 
-#: uploader.py:463
+#: uploader.py:492
 msgid "Error while trying to change attribute"
 msgstr "Fehler beim Ändern des Attributs"
 
-#: uploader.py:505
+#: uploader.py:534
 msgid "Retrieving lost texts ..."
 msgstr "Suche ungelistete Texte ..."
 
-#: uploader.py:512
+#: uploader.py:541
 msgid "No lost texts found"
 msgstr "Keine ungelisteten Texte gefunden"
 
-#: uploader.py:515
+#: uploader.py:544
 #, python-format
 msgid "Found %(count)i unlisted texts"
 msgstr "%(count)i ungelistete Texte gefunden"
 
-#: uploader.py:529
+#: uploader.py:558
 msgid "Appending texts to the inbox ..."
 msgstr "Hänge Texte an \"Meine neuen Texte\" an ..."
 
-#: uploader.py:536
+#: uploader.py:565
 msgid "Exception while trying to append to the inbox"
 msgstr "Fehler beim Anhängen an \"Meine neuen Texte\""
 
-#: uploader.py:538
+#: uploader.py:567
 #, python-format
 msgid "Appended %(count)i texts to the inbox"
 msgstr "%(count)i Texte an \"Meine neuen Texte\" angehängt"
 
-#: uploader.py:688
+#: uploader.py:717
 msgid "Adobe PDF files"
 msgstr "Adobe-PDF-Dateien"
 
-#: uploader.py:689
+#: uploader.py:718
 msgid "Microsoft PowerPoint presentations"
 msgstr "Microsoft-PowerPoint-Präsentationen"
 
-#: uploader.py:690
+#: uploader.py:719
 msgid "Microsoft Word documents"
 msgstr "Microsoft-Word-Dokumente"
 
-#: uploader.py:691
+#: uploader.py:720
 msgid "Microsoft Excel sheets"
 msgstr "Microsoft-Excel-Blätter"
 
-#: uploader.py:692
+#: uploader.py:721
 msgid "All files"
 msgstr "Alle Dateien"
 
-#: uploader.py:722
+#: uploader.py:751
 msgid "Select file to upload"
 msgstr "Datei zum hochladen auswählen"
 
-#: uploader.py:767
+#: uploader.py:796
 msgid "Can't upload file without login data"
 msgstr "Kann ohne Login-Daten keine Datei hochladen"
 
-#: uploader.py:845
+#: uploader.py:874
 msgid "Please set login data in preferences"
 msgstr "Bitte Login-Daten in den Einstellungen setzen"
 
-#: uploader.py:852
+#: uploader.py:881
 msgid "Login to txtr.com API ..."
 msgstr "Login bei der txtr.com-API ..."
 
-#: uploader.py:857
+#: uploader.py:886
 msgid "Login not ok, please check username and password"
 msgstr "Login nicht erfolgreich, bitte Benutzername und Passwort überprüfen"
 
-#: uploader.py:861
+#: uploader.py:890
 msgid "Login ok"
 msgstr "Login erfolgreich"
 
-#: uploader.py:864
+#: uploader.py:893
 msgid "Retrieving user's lists ..."
 msgstr "Hole Benutzerlisten ..."
 
-#: uploader.py:889
-#: uploader.py:898
+#: uploader.py:918
+#: uploader.py:929
 msgid "Inbox"
 msgstr "Meine neuen Texte"
 
-#: uploader.py:890
-#: uploader.py:899
+#: uploader.py:919
+#: uploader.py:930
 msgid "Trash"
 msgstr "Papierkorb"
 
-#: uploader.py:914
+#: uploader.py:947
 msgid "Logging out ..."
 msgstr "Logout ..."
 
-#: uploader.py:917
+#: uploader.py:950
 msgid "Logout ok"
 msgstr "Logout erfolgreich"
 

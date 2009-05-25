@@ -79,10 +79,10 @@ class Upload_Thread_FILE(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
         if not uri.lower().startswith("file:///"):
             raise ValueError, "Unsupported file uri format: %r" % uri
-        self.file = urllib.unquote( uri[len("file://"):] ) # FIXME Handling encoding: UTF-8 to filesystem
+        self.file = urllib.unquote( uri[len("file://"):] ) # FIXME: Handling encoding: UTF-8 to filesystem
         
         self.fd = file(self.file, "rb")
-        self.file_name = os.path.basename(self.file)
+        self.source = os.path.basename(self.file) ## Human readable simplified source name
         self.size = os.fstat(self.fd.fileno()).st_size
         self.bytes_done = 0
         self.percent_done = 0
@@ -116,7 +116,7 @@ class Upload_Thread_FILE(Upload_Thread):
         self.fp_with_callback = _file_with_read_callback(self.fd, update_gui)
         result = self.parent.txtr.delivery_upload_document_file(
             fp = self.fp_with_callback,
-            file_name = self.file_name,
+            file_name = self.source,
             append_list = (not self.MOVE_HACK) and self.append_list or None)
         
         if self.MOVE_HACK and result[0] == "OK":
@@ -143,14 +143,35 @@ class Upload_Thread_FILE(Upload_Thread):
 
 class Upload_Thread_HTTP(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
-        raise NotImplementedError, "HTTP uploads not implemented yet"
+        self.size = None
+        self.source = uri
+        self.uri = uri
+        self.bytes_done = None
+        self.percent_done = None
         
         super(Upload_Thread_HTTP, self).__init__(uri, parent, append_list)
+    
+    def do_upload(self):
+        def update_gui():
+            ## Ping the GUI every once in a while, using the idle loop
+            gobject.idle_add(self.parent.upload_callback, self)
+            
+            return not self.finished
+        
+        gobject.timeout_add(100, update_gui)
+        
+        document_id = self.parent.txtr.create_from_web(self.source, append_to=self.append_list)
+        
+        if document_id is not None:
+            self.result = ("OK", document_id)
+        else:
+            self.result = ("Upload error")
+        self.finished = True
 
 class Upload_Thread_TEST(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
         self.size = 9000
-        self.file_name = "Test file"
+        self.source = "Test file"
         self.bytes_done = 0
         self.percent_done = 0
         super(Upload_Thread_TEST, self).__init__(uri, parent, append_list)
@@ -323,8 +344,8 @@ class Document_Widget(gtk.Table, object):
             if self._read_only:
                 t.set_property("editable", False)
         
-        if hasattr(self, "_file_name"):
-            self._local_label = gtk.Label(str="Local: %s" % self._file_name)
+        if hasattr(self, "_source"):
+            self._local_label = gtk.Label(str=_("Source: %s") % self._source)
             self._url_hbox.pack_start(self._local_label, False)
         
         self.attach(self._middle_vbox, 1, 2, 0, 3, yoptions=gtk.EXPAND)
@@ -334,7 +355,7 @@ class Document_Widget(gtk.Table, object):
     def _deinit_document_mode(self):
         if self._mode != "document": raise RuntimeError, "Can't deinit document mode when not active"
         
-        if hasattr(self, "_file_name"):
+        if hasattr(self, "_source"):
             self._local_label.destroy()
             del self._local_label
         
@@ -365,7 +386,7 @@ class Document_Widget(gtk.Table, object):
         
         ## Update the text field
         if not upload.finished:
-            self._progress_label.set_text("%s" % upload.file_name)
+            self._progress_label.set_text("%s" % upload.source)
         else:
             if upload.result is not None:
                 if upload.result[0] == "OK": 
@@ -379,18 +400,23 @@ class Document_Widget(gtk.Table, object):
             else:
                 additional_info = ""
             self._progress_label.set_text("%s%s" % 
-                (upload.file_name, additional_info))
+                (upload.source, additional_info))
         
         ## Update the progress bar
         if not upload.started:
             self._progress_bar.set_text(_("Waiting for other upload(s) to finish"))
             self._progress_bar.set_fraction(0)
         elif not upload.finished:
-            self._progress_bar.set_text(_("%(percent)3.f%%, %(done)i of %(size)i bytes") % { 
-                "percent": upload.percent_done, 
-                "done": upload.bytes_done, 
-                "size": upload.size})
-            self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
+            if upload.size is not None:
+                self._progress_bar.set_text(_("%(percent)3.f%%, %(done)i of %(size)i bytes") % { 
+                    "percent": upload.percent_done, 
+                    "done": upload.bytes_done, 
+                    "size": upload.size})
+                self._progress_bar.set_fraction(float(upload.percent_done) / 100.0)
+            else:
+                self._progress_bar.set_text(_("Upload in progress ..."))
+                self._progress_bar.set_pulse_step(0.05)
+                self._progress_bar.pulse()
         else:
             self._progress_bar.set_text(_("finished"))
             self._progress_bar.set_fraction(1)
@@ -399,7 +425,7 @@ class Document_Widget(gtk.Table, object):
         if upload.finished:
             if upload.result[0] == "OK":
                 ## Switch modes
-                self._file_name = upload.file_name
+                self._source = upload.source
                 self._document_id = upload.result[1]
                 self._set_mode("document")
                 self.show_all()

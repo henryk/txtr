@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-25 04:29+0200\n"
+"POT-Creation-Date: 2009-05-25 09:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,136 +16,145 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: uploader.py:369
+#: uploader.py:348
+#, python-format
+msgid "Source: %s"
+msgstr ""
+
+#: uploader.py:393
 #, python-format
 msgid ", upload OK: %s"
 msgstr ""
 
-#: uploader.py:371
+#: uploader.py:395
 msgid ", upload aborted by user"
 msgstr ""
 
-#: uploader.py:373
+#: uploader.py:397
 #, python-format
 msgid ", upload error: %s"
 msgstr ""
 
-#: uploader.py:383
+#: uploader.py:407
 msgid "Waiting for other upload(s) to finish"
 msgstr ""
 
-#: uploader.py:386
+#: uploader.py:411
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr ""
 
-#: uploader.py:392
+#: uploader.py:417
+msgid "Upload in progress ..."
+msgstr ""
+
+#: uploader.py:421
 msgid "finished"
 msgstr ""
 
-#: uploader.py:450
+#: uploader.py:479
 msgid "Changing attribute ..."
 msgstr ""
 
-#: uploader.py:455
+#: uploader.py:484
 msgid "Reloading document data ..."
 msgstr ""
 
-#: uploader.py:458
+#: uploader.py:487
 msgid "Attribute changed."
 msgstr ""
 
-#: uploader.py:463
+#: uploader.py:492
 msgid "Error while trying to change attribute"
 msgstr ""
 
-#: uploader.py:505
+#: uploader.py:534
 msgid "Retrieving lost texts ..."
 msgstr ""
 
-#: uploader.py:512
+#: uploader.py:541
 msgid "No lost texts found"
 msgstr ""
 
-#: uploader.py:515
+#: uploader.py:544
 #, python-format
 msgid "Found %(count)i unlisted texts"
 msgstr ""
 
-#: uploader.py:529
+#: uploader.py:558
 msgid "Appending texts to the inbox ..."
 msgstr ""
 
-#: uploader.py:536
+#: uploader.py:565
 msgid "Exception while trying to append to the inbox"
 msgstr ""
 
-#: uploader.py:538
+#: uploader.py:567
 #, python-format
 msgid "Appended %(count)i texts to the inbox"
 msgstr ""
 
-#: uploader.py:688
+#: uploader.py:717
 msgid "Adobe PDF files"
 msgstr ""
 
-#: uploader.py:689
+#: uploader.py:718
 msgid "Microsoft PowerPoint presentations"
 msgstr ""
 
-#: uploader.py:690
+#: uploader.py:719
 msgid "Microsoft Word documents"
 msgstr ""
 
-#: uploader.py:691
+#: uploader.py:720
 msgid "Microsoft Excel sheets"
 msgstr ""
 
-#: uploader.py:692
+#: uploader.py:721
 msgid "All files"
 msgstr ""
 
-#: uploader.py:722
+#: uploader.py:751
 msgid "Select file to upload"
 msgstr ""
 
-#: uploader.py:767
+#: uploader.py:796
 msgid "Can't upload file without login data"
 msgstr ""
 
-#: uploader.py:845
+#: uploader.py:874
 msgid "Please set login data in preferences"
 msgstr ""
 
-#: uploader.py:852
+#: uploader.py:881
 msgid "Login to txtr.com API ..."
 msgstr ""
 
-#: uploader.py:857
+#: uploader.py:886
 msgid "Login not ok, please check username and password"
 msgstr ""
 
-#: uploader.py:861
+#: uploader.py:890
 msgid "Login ok"
 msgstr ""
 
-#: uploader.py:864
+#: uploader.py:893
 msgid "Retrieving user's lists ..."
 msgstr ""
 
-#: uploader.py:889 uploader.py:898
+#: uploader.py:918 uploader.py:929
 msgid "Inbox"
 msgstr ""
 
-#: uploader.py:890 uploader.py:899
+#: uploader.py:919 uploader.py:930
 msgid "Trash"
 msgstr ""
 
-#: uploader.py:914
+#: uploader.py:947
 msgid "Logging out ..."
 msgstr ""
 
-#: uploader.py:917
+#: uploader.py:950
 msgid "Logout ok"
 msgstr ""
 
