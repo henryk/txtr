@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: txtr Uploader 0.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-25 00:05+0200\n"
-"PO-Revision-Date: 2009-05-25 00:06+0100\n"
+"POT-Creation-Date: 2009-05-25 04:19+0200\n"
+"PO-Revision-Date: 2009-05-25 04:19+0100\n"
 "Last-Translator: Henryk Plötz <henryk@ploetzli.ch>\n"
 "Language-Team: German\n"
 "MIME-Version: 1.0\n"
@@ -17,110 +17,128 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: uploader.py:358
+#: uploader.py:369
+#, python-format
+msgid ", upload OK: %s"
+msgstr ", Upload erfolgreich: %s"
+
+#: uploader.py:371
+msgid ", upload aborted by user"
+msgstr ", Upload vom Benutzer abgebrochen"
+
+#: uploader.py:373
+#, python-format
+msgid ", upload error: %s"
+msgstr ", Upload nicht erfolgreich: %s"
+
+#: uploader.py:383
+msgid "Waiting for other upload(s) to finish"
+msgstr "Warte bis der/die andere(n) Upload(s) beendet sind"
+
+#: uploader.py:386
 #, python-format
 msgid "%(percent)3.f%%, %(done)i of %(size)i bytes"
 msgstr "%(percent)3.f%%, %(done)i von %(size)i bytes"
 
-#: uploader.py:364
+#: uploader.py:392
 msgid "finished"
 msgstr "beendet"
 
-#: uploader.py:414
+#: uploader.py:450
 msgid "Changing attribute ..."
 msgstr "Ändere Attribut ..."
 
-#: uploader.py:419
+#: uploader.py:455
 msgid "Reloading document data ..."
 msgstr "Lade geänderte Dokument-Daten neu ..."
 
-#: uploader.py:422
+#: uploader.py:458
 msgid "Attribute changed."
 msgstr "Attribut geändert."
 
-#: uploader.py:427
+#: uploader.py:463
 msgid "Error while trying to change attribute"
 msgstr "Fehler beim Ändern des Attributs"
 
-#: uploader.py:469
+#: uploader.py:505
 msgid "Retrieving lost texts ..."
 msgstr "Suche ungelistete Texte ..."
 
-#: uploader.py:477
+#: uploader.py:512
 msgid "No lost texts found"
 msgstr "Keine ungelisteten Texte gefunden"
 
-#: uploader.py:480
+#: uploader.py:515
 #, python-format
 msgid "Found %(count)i unlisted texts"
 msgstr "%(count)i ungelistete Texte gefunden"
 
-#: uploader.py:494
+#: uploader.py:529
 msgid "Appending texts to the inbox ..."
 msgstr "Hänge Texte an \"Meine neuen Texte\" an ..."
 
-#: uploader.py:502
+#: uploader.py:536
 msgid "Exception while trying to append to the inbox"
 msgstr "Fehler beim Anhängen an \"Meine neuen Texte\""
 
-#: uploader.py:504
+#: uploader.py:538
 #, python-format
 msgid "Appended %(count)i texts to the inbox"
 msgstr "%(count)i Texte an \"Meine neuen Texte\" angehängt"
 
-#: uploader.py:653
+#: uploader.py:688
 msgid "Adobe PDF files"
 msgstr "Adobe-PDF-Dateien"
 
-#: uploader.py:654
+#: uploader.py:689
 msgid "Microsoft PowerPoint presentations"
 msgstr "Microsoft-PowerPoint-Präsentationen"
 
-#: uploader.py:655
+#: uploader.py:690
 msgid "Microsoft Word documents"
 msgstr "Microsoft-Word-Dokumente"
 
-#: uploader.py:656
+#: uploader.py:691
 msgid "Microsoft Excel sheets"
 msgstr "Microsoft-Excel-Blätter"
 
-#: uploader.py:657
+#: uploader.py:692
 msgid "All files"
 msgstr "Alle Dateien"
 
-#: uploader.py:687
+#: uploader.py:722
 msgid "Select file to upload"
 msgstr "Datei zum hochladen auswählen"
 
-#: uploader.py:732
+#: uploader.py:767
 msgid "Can't upload file without login data"
 msgstr "Kann ohne Login-Daten keine Datei hochladen"
 
-#: uploader.py:792
+#: uploader.py:845
 msgid "Please set login data in preferences"
 msgstr "Bitte Login-Daten in den Einstellungen setzen"
 
-#: uploader.py:799
+#: uploader.py:852
 msgid "Login to txtr.com API ..."
 msgstr "Login bei der txtr.com-API ..."
 
-#: uploader.py:804
+#: uploader.py:857
 msgid "Login not ok, please check username and password"
 msgstr "Login nicht erfolgreich, bitte Benutzername und Passwort überprüfen"
 
-#: uploader.py:808
+#: uploader.py:861
 msgid "Login ok"
 msgstr "Login erfolgreich"
 
-#: uploader.py:811
+#: uploader.py:864
 msgid "Retrieving user's lists ..."
 msgstr "Hole Benutzerlisten ..."
 
-#: uploader.py:852
+#: uploader.py:905
 msgid "Logging out ..."
 msgstr "Logout ..."
 
-#: uploader.py:855
+#: uploader.py:908
 msgid "Logout ok"
 msgstr "Logout erfolgreich"
 

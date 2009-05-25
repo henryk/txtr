@@ -43,6 +43,7 @@ class Upload_Thread(object):
         self.uri = uri
         self.parent = parent
         self.append_list = append_list
+        self.started = False
         self.harakiri = False
         self.finished = False
         self.result = None
@@ -54,6 +55,7 @@ class Upload_Thread(object):
     class HarakiriException(Exception): pass
     
     def run(self):
+        self.started = True
         try:
             try:
                 self.do_upload()
@@ -103,6 +105,12 @@ class Upload_Thread_FILE(Upload_Thread):
             if self.harakiri:
                 raise self.HarakiriException, "Get me out of here"
         
+        if self.aborted:
+            self.result = ("Aborted",)
+            self.finished = True
+            gobject.idle_add(self.parent.upload_callback, self)
+            return
+        
         self.fp_with_callback = _file_with_read_callback(self.fd, update_gui)
         result = self.parent.txtr.delivery_upload_document_file(
             fp = self.fp_with_callback,
@@ -125,6 +133,10 @@ class Upload_Thread_FILE(Upload_Thread):
     
     def abort(self):
         self.aborted = True
+        if not self.started:
+            self.result = ("Aborted",)
+            self.finished = True
+            gobject.idle_add(self.parent.upload_callback, self)
 
 class Upload_Thread_HTTP(Upload_Thread):
     def __init__(self, uri, parent, append_list=None):
@@ -339,7 +351,8 @@ class Document_Widget(gtk.Table, object):
     
     def start(self):
         if self._mode == "upload":
-            self._upload_thread.start()
+            if not self._upload_thread.finished:
+                self._upload_thread.start()
     def stop(self):
         if self._mode == "upload":
             self._upload_thread.schedule_stop()
@@ -354,6 +367,8 @@ class Document_Widget(gtk.Table, object):
             if upload.result is not None:
                 if upload.result[0] == "OK": 
                     additional_info = _(", upload OK: %s") % upload.result[1]
+                elif upload.result[0] == "Aborted":
+                    additional_info = _(", upload aborted by user")
                 else:
                     additional_info = _(", upload error: %s") % upload.result[0]
                     import pprint
@@ -364,7 +379,10 @@ class Document_Widget(gtk.Table, object):
                 (upload.file_name, additional_info))
         
         ## Update the progress bar
-        if not upload.finished:
+        if not upload.started:
+            self._progress_bar.set_text(_("Waiting for other upload(s) to finish"))
+            self._progress_bar.set_fraction(0)
+        elif not upload.finished:
             self._progress_bar.set_text(_("%(percent)3.f%%, %(done)i of %(size)i bytes") % { 
                 "percent": upload.percent_done, 
                 "done": upload.bytes_done, 
@@ -383,8 +401,16 @@ class Document_Widget(gtk.Table, object):
                 self._set_mode("document")
                 self.show_all()
                 self._load_document_data()
+                gobject.idle_add(self._parent.upload_finished, self)
+            elif upload.result[0] == "Aborted":
+                self.destroy()
             else:
                 self._icon.set_from_stock("gtk-dialog-error", gtk.ICON_SIZE_DIALOG)
+                gobject.idle_add(self._parent.upload_finished, self)
+    
+    def is_finished(self):
+        if self._mode != "upload": return True
+        return self._upload_thread.finished
     
     def _load_document_data(self):
         self._document = txtr.WSDocMgmt.getDocument(self._parent.txtr.token, self._document_id)
@@ -653,6 +679,7 @@ class Upload_GUI(object):
         gtk.quit_add(0, self.fast_shutdown)
         
         self.documents = []
+        self.current_upload = None
         self.available_lists = gtk.TreeStore(str, str)
         self.target.set_model(self.available_lists)
         
@@ -767,7 +794,8 @@ class Upload_GUI(object):
             document.connect("destroy", self.remove_document)
             self.documents_vbox.pack_start(document, expand=False)
             document.show_all()
-            document.start()
+        
+        self.start_next_document_to_upload()
     
     def add_document(self, document_id):
         if not self.check_txtr(): return
@@ -791,6 +819,23 @@ class Upload_GUI(object):
         self.documents.remove(document)
         if len(self.documents) == 0:
             self.documents_vbox.pack_start(self.idle_image)
+    
+    def upload_finished(self, document):
+        "Called from Document_Widget.upload_callback()"
+        if self.current_upload == document:
+            self.current_upload = None
+        self.start_next_document_to_upload()
+    
+    def start_next_document_to_upload(self):
+        if self.current_upload is not None: return
+        
+        next_upload = None
+        for document in self.documents_vbox.get_children():
+            if not document.is_finished() and next_upload is None: next_upload = document
+        
+        if next_upload is not None:
+            self.current_upload = next_upload
+            next_upload.start()
     
     def do_login(self):
         ## Set up API and log in
