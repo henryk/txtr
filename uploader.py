@@ -889,8 +889,10 @@ class Upload_GUI(object):
                 if list["ID"] == inbox_id: list["name"] = _("Inbox")
                 if list["ID"] == trash_id: list["name"] = _("Trash")
                 
-                last_list = self.available_lists.append(last_view, (list["name"], list["ID"]) )
-                if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
+                if list["ID"] == inbox_id and inbox_iter is None:
+                    inbox_iter = self.available_lists.prepend(last_view, (list["name"], list["ID"]) )
+                else:
+                    self.available_lists.append(last_view, (list["name"], list["ID"]) )
         
         for list in lists: # The remaining lists (not in any view set)
             if list.has_key("consumed") and list["consumed"]: continue
@@ -898,8 +900,10 @@ class Upload_GUI(object):
             if list["ID"] == inbox_id: list["name"] = _("Inbox")
             if list["ID"] == trash_id: list["name"] = _("Trash")
             
-            last_list = self.available_lists.append(None, (list["name"], list["ID"]) )
-            if list["ID"] == inbox_id and inbox_iter is None: inbox_iter = last_list
+            if list["ID"] == inbox_id and inbox_iter is None:
+                inbox_iter = self.available_lists.prepend(None, (list["name"], list["ID"]) )
+            else:
+                self.available_lists.append(None, (list["name"], list["ID"]) )
         
         if inbox_iter is not None:
             self.target.set_active_iter(inbox_iter)
