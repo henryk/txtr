@@ -132,10 +132,12 @@ class _HTTP_Wrapper(object):
 
 class _JSONBASE(object):
     RPCURL = "http://txtr.com/json/rpc"
+    RPCURL_SSL = "https://txtr.com/json/rpc"
     DEBUG = 0
     
-    def __init__(self, cookie = None):
-        self.json_http_wrapper = _HTTP_Wrapper.new(cookie = cookie, baseurl = self.RPCURL)
+    def __init__(self, cookie = None, baseurl = RPCURL):
+        self.json_http_wrapper = _HTTP_Wrapper.new(cookie = cookie, baseurl = baseurl)
+        self.baseurl = baseurl
     
     def __getattr__(self, fname):
         return lambda *args, **kwargs: self._docall(fname, *args, **kwargs)
@@ -172,7 +174,7 @@ class _JSONBASE(object):
             "params": params,
         })
         
-        callurl = "%s?json=%s"% (self.RPCURL, urllib.quote(json))
+        callurl = "%s?json=%s"% (self.baseurl, urllib.quote(json))
         if self.DEBUG:
             print ">> ", urllib.unquote(callurl)
         
