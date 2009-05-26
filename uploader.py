@@ -208,7 +208,7 @@ class Document_Widget(gtk.Table, object):
     def new_from_uri(cls, parent, uri, target_list=None, target_name=None):
         if target_list is None:
             append_list = None
-            list_name = "No list"
+            list_name = _("No list")
         else:
             append_list = target_list
             list_name = target_name
@@ -272,13 +272,21 @@ class Document_Widget(gtk.Table, object):
         if self._mode is not None: raise RuntimeError, "Can't init upload mode when different mode already active"
         
         self._progress_label = gtk.Label()
+        self._target_label = gtk.Label()
         self._progress_bar = gtk.ProgressBar()
         
         self._progress_label.set_property("xpad", 12)
         self._progress_label.set_property("xalign", 0)
+        self._target_label.set_property("xpad", 12)
+        self._target_label.set_property("xalign", 0)
         self._progress_bar.set_pulse_step(0.1)
         
+        self._target_label.set_text(_("Target list: %(folder)s") % {
+            "folder": self._list_name
+        })
+        
         self.attach(self._progress_label, 1, 2, 0, 1, yoptions=0)
+        self.attach(self._target_label, 1, 2, 2, 3, yoptions=0)
         self.attach(self._progress_bar, 1, 2, 1, 2, xpadding=12, yoptions=0)
         
         if hasattr(self._upload_thread, "abort"):
@@ -295,9 +303,11 @@ class Document_Widget(gtk.Table, object):
         if self._mode != "upload": raise RuntimeError, "Can't deinit upload mode when not active"
         
         self._progress_label.destroy()
+        self._target_label.destroy()
         self._progress_bar.destroy()
         
         del self._progress_label
+        del self._target_label
         del self._progress_bar
         
         if hasattr(self._upload_thread, "abort"):
