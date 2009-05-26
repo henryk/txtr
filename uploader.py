@@ -526,7 +526,6 @@ class Document_Widget(gtk.Table, object):
     txtr = property(lambda self: self._parent.txtr)
 
 class Lostfound_Dialog(object):
-    
     def __init__(self, parent, gconf_client, parent_window=None):
         self.parent = parent
         self.gconf_client = gconf_client
@@ -628,64 +627,180 @@ class Lostfound_Dialog(object):
     
     txtr = property(lambda self: self.parent.txtr)
 
+class Preferences(object):
+    class Preference_Setting(object):
+        def __init__(self, name, type, field_name, default = None, gconf_name = None):
+            """name is the attribute name this setting will be available in the parent Preferences as
+            type is the type of the attribute and gconf entry, one of: str, int, bool
+            field_name is either a Glade widget name that should be updated with changes from gconf
+                and read from to update gconf (upon Dialog confirmation), or a callable which will
+                be called with three arguments to get the value and with four arguments to set the value
+                    for get: def callback(preference_setting, preferences, dialog_xml)
+                    for set: def callback(preference_setting, preferences, dialog_xml, value)
+            default is either the default value for the setting, or a callable that will be called
+                with one argument to get the value if no value is set
+            gconf_name is the key name in gconf, defaults to name"""
+            
+            if type not in (str, int, bool):
+                raise ValueError, "type must be one of str, int, bool, and not %r" % type
+            
+            self.name = name
+            self.type = type
+            self.field_name = field_name
+            self.default = default
+            if gconf_name is None: self.gconf_name = name
+            else: self.gconf_name = gconf_name
+            
+            self._notifications = {}
+        
+        def _get(self, parent):
+            r = parent.gconf_client.get(parent.gconf_directory + "/" + self.gconf_name)
+            if r is None:
+                if hasattr(self.default, "__call__"):
+                    return self.default(self)
+                else:
+                    return self.default
+            
+            if self.type == str:
+                return r.get_string()
+            elif self.type == int:
+                return r.get_int()
+            elif self.type == bool:
+                return r.get_bool()
+        
+        def _set(self, parent, value):
+            if self.type == str:
+                parent.gconf_client.set_string(parent.gconf_directory + "/" + self.gconf_name, value)
+            elif self.type == int:
+                parent.gconf_client.set_int(parent.gconf_directory + "/" + self.gconf_name, value)
+            elif self.type == bool:
+                parent.gconf_client.set_bool(parent.gconf_directory + "/" + self.gconf_name, value)
+        
+        def _gconf_changed(self, client, connection_id, value, parent):
+            parent.call_changed_cb(self)
+        
+        def _connect_signals(self, parent, dialog_xml):
+            self._notifications[id(dialog_xml)] = \
+                parent.gconf_client.notify_add(parent.gconf_directory + "/" + self.gconf_name,
+                    self._gconf_changed_while_editing, (parent, dialog_xml))
+            
+            if not isinstance(self.field_name, basestring): return
+            widget = dialog_xml.get_widget(self.field_name)
+            
+            if isinstance(widget, gtk.Entry):
+                widget.connect("activate", self._on_entry_activate, parent, dialog_xml)
+                widget.connect("focus-out-event", self._on_entry_focus_out_event, parent, dialog_xml)
+        
+        def _gconf_changed_while_editing(self, client, connection_id, value, args):
+            parent, dialog_xml = args
+            self._load_field(parent, dialog_xml)
+        
+        def _disconnect_signals(self, parent, dialog_xml):
+            notification_id = self._notifications.get(id(dialog_xml), None)
+            if notification_id is not None:
+                parent.gconf_client.notify_remove(notification_id)
+                del self._notifications[id(dialog_xml)]
+            
+            ## Widget signals are auto-disconnected when the dialog window is destroyed
+        
+        def _load_field(self, parent, dialog_xml):
+            if hasattr(self.field_name, "__call__"):
+                self.field_name(self, parent, dialog_xml)
+                return
+            
+            if not isinstance(self.field_name, basestring): return
+            widget = dialog_xml.get_widget(self.field_name)
+            
+            if hasattr(widget, "set_text"):
+                widget.set_text(str(self._get(parent)))
+        
+        def _on_entry_activate(self, entry, parent, dialog_xml): 
+            return self._entry_event(entry, parent, dialog_xml)
+        def _on_entry_focus_out_event(self, widget, event, parent, dialog_xml): 
+            return self._entry_event(widget, parent, dialog_xml)
+        
+        def _entry_event(self, entry, parent, dialog_xml):
+            if self.type == str:
+                self._set(parent, entry.get_text())
+            elif self.type == int:
+                self._set(parent, int(entry.get_text()))
+            elif self.type == bool:
+                self._set(parent, bool(entry.get_text()))
+            return False
+    
+    PREFERENCES = [
+        Preference_Setting("username", str, "username_input", ""),
+        Preference_Setting("password", str, "password_input", ""),
+    ]
+    
+    def __init__(self, parent, gconf_client):
+        self.parent = parent
+        self.gconf_client = gconf_client
+        self.gconf_directory = self.parent.GCONF_DIRECTORY
+        self.changed_cb = []
+        self.dirty = None
+        self.gconf_client.add_dir(self.gconf_directory, gconf.CLIENT_PRELOAD_ONELEVEL)
+        
+        for p in self.PREFERENCES:
+            self.gconf_client.notify_add(self.gconf_directory + "/" + p.gconf_name, p._gconf_changed, self)
+    
+    def __getattr__(self, name):
+        for p in self.PREFERENCES:
+            if p.name == name: return p._get(self)
+        return super(Preferences, self).__getattr__(name)
+
+    def __setattr__(self, name, value):
+        for p in self.PREFERENCES:
+            if p.name == name: return p._set(self, value)
+        return super(Preferences, self).__setattr__(name, value)
+    
+    def add_changed_listener(self, cb):
+        self.changed_cb.append(cb)
+    def del_changed_listener(self, cb):
+        self.changed_cb.remove(cb)
+    
+    def call_changed_cb(self, *args, **kwargs):
+        print "Something's changed %s %s" % (args, kwargs)
+        if self.dirty is None: ## Change callbacks go out directly
+            for cb in self.changed_cb:
+                cb(self, *args, **kwargs)
+        elif self.dirty == False: ## Changes are cumulated and whoever set dirty to False is responsible for them
+            self.dirty = True
+    
+    def run(self, parent_window=None):
+        dialog_xml = gtk.glade.XML(GLADE_FILE, "uploader_preferences")
+        dialog = dialog_xml.get_widget("uploader_preferences")
+        
+        if parent_window is not None:
+            dialog.set_transient_for(parent_window)
+        
+        self.dirty = self.dirty or False ## Set to False if it was None, True if it was True
+        
+        for p in self.PREFERENCES:
+            p._connect_signals(self, dialog_xml)
+            p._load_field(self, dialog_xml)
+        
+        response = dialog.run()
+        
+        for p in self.PREFERENCES:
+            p._disconnect_signals(self, dialog_xml)
+        
+        dialog.destroy()
+        
+        if self.dirty:
+            self.dirty = None
+            self.call_changed_cb()
+            return True
+        else:
+            self.dirty = None
+            return False
+
 GLADE_FILE = "uploader.glade"
 DRY_RUN = False
 class Upload_GUI(object):
     _DRAG_INFO_URI = 1
     _DRAG_INFO_TEXT = 2
     GCONF_DIRECTORY = "/apps/txtr"
-    
-    class login_data_model_view(object):
-        def __init__(self, parent, gconf_client, username_entry, password_entry):
-            self.parent = parent
-            self.gconf_client = gconf_client
-            self.username_entry = username_entry
-            self.password_entry = password_entry
-            
-            self.gconf_client.add_dir(self.parent.GCONF_DIRECTORY, gconf.CLIENT_PRELOAD_ONELEVEL)
-            self.gconf_client.notify_add(self.parent.GCONF_DIRECTORY + "/username", self.gconf_changed_username)
-            self.gconf_client.notify_add(self.parent.GCONF_DIRECTORY + "/password", self.gconf_changed_password)
-            
-            self.load()
-        
-        def gconf_changed_username(self, client, connection_id, value, *args):
-            old = self.username_entry.get_text()
-            new = value.value.to_string()
-            if new != old:
-                self.username_entry.set_text(new)
-                self.parent.login_data_changed()
-        
-        def gconf_changed_password(self, client, connection_id, value, *args):
-            old = self.password_entry.get_text()
-            new = value.value.to_string()
-            if new != old:
-                self.password_entry.set_text(new)
-                self.parent.login_data_changed()
-        
-        def save(self):
-            changed = False
-            u = self.username_entry.get_text()
-            p = self.password_entry.get_text()
-            if self.username != u:
-                self.gconf_client.set_string(self.parent.GCONF_DIRECTORY + "/username", u)
-                self.username = u
-                changed = True
-            if self.password != p:
-                self.gconf_client.set_string(self.parent.GCONF_DIRECTORY + "/password", p)
-                self.password = p
-                changed = True
-            if changed:
-                self.parent.login_data_changed()
-        
-        def load(self):
-            self.username = self.gconf_client.get_string(self.parent.GCONF_DIRECTORY + "/username")
-            self.password = self.gconf_client.get_string(self.parent.GCONF_DIRECTORY + "/password")
-            
-            if self.username:
-                self.username_entry.set_text(self.username)
-            if self.password:
-                self.password_entry.set_text(self.password)
-
     
     def __init__(self):
         self.main_window_xml = gtk.glade.XML(GLADE_FILE, "uploader_main")
@@ -738,12 +853,11 @@ class Upload_GUI(object):
         
         ## Prepare gconf, read config. Login if username/password available, otherwise display preferences
         self.gconf_client = gconf.client_get_default()
-        self.login_data = self.login_data_model_view(self, self.gconf_client,
-            self.preferences_window_xml.get_widget("username_input"),
-            self.preferences_window_xml.get_widget("password_input"))
+        self.preferences = Preferences(self, self.gconf_client)
         
         self.txtr_dirty = False
-        if not (self.login_data.username and self.login_data.password):
+        self.preferences.add_changed_listener(self.login_data_changed)
+        if not (self.preferences.username and self.preferences.password):
             self.on_preferences_activate(None)
         
         self.do_login()
@@ -787,15 +901,10 @@ class Upload_GUI(object):
         self.about_window.hide()
     
     def on_preferences_activate(self, menuitem):
-        result = self.preferences_window.run()
-        self.preferences_window.hide()
-        if result == gtk.RESPONSE_ACCEPT:
-            self.login_data.save()
-            if self.txtr_dirty:
-                self.do_logout()
-                self.do_login()
-        else:
-            self.login_data.load()
+        result = self.preferences.run(self.main_window)
+        if self.txtr_dirty: ## Changes were made
+            self.do_logout()
+            self.do_login()
         self.txtr_dirty = False
     
     ## Indirectly called/utility methods
@@ -880,11 +989,11 @@ class Upload_GUI(object):
         ## Set up API and log in
         if hasattr(self, "txtr"): return
         
-        if not (self.login_data.username and self.login_data.password):
+        if not (self.preferences.username and self.preferences.password):
             self.status(message=_("Please set login data in preferences"))
             return
         
-        self.txtr = txtr.txtr(username=self.login_data.username, password=self.login_data.password)
+        self.txtr = txtr.txtr(username=self.preferences.username, password=self.preferences.password)
         self.txtr_dirty = False
         if not DRY_RUN:
             self.status(message=None, pump_events=False) # Clear default context
@@ -906,7 +1015,7 @@ class Upload_GUI(object):
             inbox_id = self.txtr.get_special_list("INBOX").get("ID", None)
             trash_id = self.txtr.get_special_list("TRASH").get("ID", None)
         else:
-            views = [{"name": "My Texts", "ID": "foo", "children": ("bar",)}]
+            views = [{"name": "My Texts", "ID": "foo", "children_lists": ("bar",)}]
             lists = [{"name": "Private Texts", "ID": "bar"}, {"name": "INBOX", "ID":"baz"}]
             inbox_id = None
             trash_id = None
@@ -949,7 +1058,8 @@ class Upload_GUI(object):
         self.status("lists")
         
         lostfound = Lostfound_Dialog(parent=self, gconf_client=self.gconf_client, parent_window=self.main_window)
-        lostfound.run_conditionally()
+        if not DRY_RUN:
+            lostfound.run_conditionally()
     
     def do_logout(self):
         if not hasattr(self, "txtr"): return
@@ -963,7 +1073,7 @@ class Upload_GUI(object):
         
         del self.txtr
     
-    def login_data_changed(self):
+    def login_data_changed(self, *args, **kwargs):
         self.txtr_dirty = True
     
     def do_shutdown(self):
