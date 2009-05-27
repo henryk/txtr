@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.4.dtd">
 <!-- eric4 project file for project txtr -->
-<!-- Saved: 2009-05-20, 05:10:47 -->
+<!-- Saved: 2009-05-27, 04:49:51 -->
 <!-- Copyright (C) 2009 Henryk Plötz, henryk@ploetzli.ch -->
 <Project version="4.4">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -19,7 +19,8 @@
     <Source>metadata.py</Source>
     <Source>update_hashes.py</Source>
     <Source>fix_sony_cache.py</Source>
-    <Source>uploader.py</Source>
+    <Source>txtr_uploader.py</Source>
+    <Source>setup.py</Source>
   </Sources>
   <Forms>
   </Forms>
@@ -30,6 +31,7 @@
   <Interfaces>
   </Interfaces>
   <Others>
+    <Other>README.txt</Other>
   </Others>
   <Vcs>
     <VcsType>Subversion</VcsType>

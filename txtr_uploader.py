@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys, txtr, re, urllib, os, threading, time, locale, gettext
+import pkg_resources
 
 APP_NAME = "txtr_uploader"
 LOCALE_DIR = "locale"
@@ -807,7 +808,7 @@ class Preferences(object):
             self.dirty = None
             return False
 
-GLADE_FILE = "uploader.glade"
+GLADE_FILE = pkg_resources.resource_filename(__name__, "uploader.glade")
 DRY_RUN = False
 class Upload_GUI(object):
     _DRAG_INFO_URI = 1
