@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys, txtr, re, urllib, os, threading, time, locale, gettext
 
 APP_NAME = "txtr_uploader"
