@@ -12,6 +12,8 @@ try:
 except ImportError:
     pass
 
+__all__ = ["WSAuth", "WSViewMgmt", "WSListMgmt", "WSDocMgmt", "WSUserMgmt", "WSEventBus", "txtr"]
+
 ## Note: The following is a backport (read: copy) of the essential parts of the httplib module in Python 2.6
 class _HTTPConnectionWithFileUpload(httplib.HTTPConnection):
     def send(self, str):

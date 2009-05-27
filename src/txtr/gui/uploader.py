@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys, txtr, re, urllib, os, threading, time, locale, gettext
+import sys, re, urllib, os, threading, time, locale, gettext
 import pkg_resources
+import txtr
 
 APP_NAME = "txtr_uploader"
 LOCALE_DIR = "locale"
@@ -830,7 +831,8 @@ class Upload_GUI(object):
         for i in "statusbar", "target", "documents_vbox", "documents_viewport":
             setattr(self, i, self.main_window_xml.get_widget(i))
         
-        self.bg_pixbuf = gtk.gdk.pixbuf_new_from_file("bg_txtrSynchronizer.png")
+        bgname = pkg_resources.resource_filename(__name__, "bg_txtrSynchronizer.png")
+        self.bg_pixbuf = gtk.gdk.pixbuf_new_from_file(bgname)
         self.idle_image = gtk.image_new_from_pixbuf(self.bg_pixbuf)
         self.documents_vbox.pack_start(self.idle_image)
         self.idle_image.show()
