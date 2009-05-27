@@ -11,15 +11,6 @@
   <Author>Henryk Plötz</Author>
   <Email>henryk@ploetzli.ch</Email>
   <Sources>
-    <Source>wstest.py</Source>
-    <Source>jsontest.py</Source>
-    <Source>txtr.py</Source>
-    <Source>create_from_web.py</Source>
-    <Source>lost+found.py</Source>
-    <Source>metadata.py</Source>
-    <Source>update_hashes.py</Source>
-    <Source>fix_sony_cache.py</Source>
-    <Source>txtr_uploader.py</Source>
     <Source>setup.py</Source>
   </Sources>
   <Forms>
