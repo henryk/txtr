@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-#from distutils.core import setup
+import ez_setup
+ez_setup.use_setuptools()
+
 from setuptools import setup
 
 setup(name='txtr Uploader',
