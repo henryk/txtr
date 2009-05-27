@@ -1127,7 +1127,7 @@ class Upload_GUI(object):
         while gtk.events_pending():
             gtk.main_iteration()
 
-if __name__ == "__main__":
+def main():
     gtk.gdk.threads_init()
     
     for module in (gettext, gtk.glade):
@@ -1142,3 +1142,6 @@ if __name__ == "__main__":
     if False:
         gobject.idle_add(lambda: g.add_document("ah8mg9") and None)
     gtk.main()
+
+if __name__ == "__main__":
+    main()
