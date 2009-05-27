@@ -6,7 +6,7 @@ ez_setup.use_setuptools()
 
 from setuptools import setup
 
-setup(name='txtr Uploader',
+setup(name='python-txtr',
     version='0.5',
     description='txtr Uploader for Linux',
     author='Henryk Plötz',
@@ -19,7 +19,8 @@ setup(name='txtr Uploader',
     packages=["txtr", "txtr/gui"],
     
     package_data={
-        "": ["bg_txtrSynchronizer.png", "uploader_logo.png", "uploader.glade"],
+        "txtr/gui": ["bg_txtrSynchronizer.png", "uploader_logo.png", "uploader.glade",
+            "locale/*/LC_MESSAGES/txtr_uploader.mo"],
     },
     include_package_data=False,
     zip_safe=False,

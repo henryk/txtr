@@ -5,7 +5,7 @@ import pkg_resources
 import txtr
 
 APP_NAME = "txtr_uploader"
-LOCALE_DIR = "locale"
+LOCALE_DIR = pkg_resources.resource_filename(__name__, "locale")
 _ = gettext.gettext
 
 try:

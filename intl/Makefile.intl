@@ -6,5 +6,5 @@ all: locale/de/LC_MESSAGES/txtr_uploader.mo messages.pot
 messages.pot: ../src/txtr/gui/uploader.py ./tmp/uploader.glade.h
 	xgettext  -k_ -kN_ --output messages.pot --from-code utf-8 $^
 
-locale/de/LC_MESSAGES/txtr_uploader.mo: de.po
-	msgfmt de.po -o locale/de/LC_MESSAGES/txtr_uploader.mo
+../src/txtr/gui/locale/de/LC_MESSAGES/txtr_uploader.mo: de.po
+	msgfmt de.po -o $@
